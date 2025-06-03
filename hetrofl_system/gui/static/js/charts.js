@@ -1,50 +1,192 @@
-// HETROFL System Plotting Functions
-// This module provides enhanced plotting capabilities using Plotly.js
+// HETROFL System Enhanced Plotting Functions
+// This module provides enhanced plotting capabilities using Plotly.js and Chart.js
 
 // Global color palette for consistent styling
 const COLORS = {
-    global: '#e74c3c',       // Red for global model
-    xgboost: '#3498db',      // Blue for XGBoost
-    catboost: '#2ecc71',     // Green for CatBoost
-    random_forest: '#f39c12', // Orange for Random Forest
+    global: '#667eea',       // Purple for global model
+    xgboost: '#4facfe',      // Blue for XGBoost
+    catboost: '#43e97b',     // Green for CatBoost
+    random_forest: '#fa709a', // Pink for Random Forest
     background: '#f8f9fa',   // Light background
     grid: '#eaecef',         // Grid lines
-    text: '#2c3e50'          // Text color
+    text: '#2c3e50',         // Text color
+    gradients: {
+        primary: ['#667eea', '#764ba2'],
+        secondary: ['#4facfe', '#00f2fe'],
+        success: ['#43e97b', '#38f9d7'],
+        warning: ['#f093fb', '#f5576c'],
+        danger: ['#ff9a9e', '#fecfef']
+    }
 };
 
-// Plot size defaults
+// Enhanced plot configuration
 const PLOT_CONFIG = {
     responsive: true,
     displayModeBar: true,
     displaylogo: false,
-    modeBarButtonsToRemove: ['lasso2d', 'select2d']
+    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'autoScale2d'],
+    modeBarButtonsToAdd: [
+        {
+            name: 'Export as PNG',
+            icon: {
+                'width': 1792,
+                'height': 1792,
+                'path': 'M1344 1472q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm256 0q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm128-224v320q0 40-28 68t-68 28h-1472q-40 0-68-28t-28-68v-320q0-40 28-68t68-28h465l135 136q58 56 136 56t136-56l136-136h464q40 0 68 28t28 68zm-325-569q17 41-14 70l-448 448q-18 19-45 19t-45-19l-448-448q-31-29-14-70 17-39 59-39h256v-448q0-26 19-45t45-19h256q26 0 45 19t19 45v448h256q42 0 59 39z'
+            },
+            click: function(gd) {
+                Plotly.downloadImage(gd, {
+                    format: 'png',
+                    width: 1200,
+                    height: 800,
+                    filename: `hetrofl_chart_${new Date().toISOString().split('T')[0]}`
+                });
+            }
+        }
+    ],
+    toImageButtonOptions: {
+        format: 'png',
+        filename: 'hetrofl_chart',
+        height: 800,
+        width: 1200,
+        scale: 2
+    }
 };
 
-// Error handling for plots
-function handlePlotError(containerId, errorMessage) {
+// Chart.js default configuration
+const CHARTJS_CONFIG = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                    family: 'Poppins, sans-serif',
+                    size: 12
+                }
+            }
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#667eea',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: true,
+            titleFont: {
+                family: 'Poppins, sans-serif',
+                size: 14,
+                weight: 'bold'
+            },
+            bodyFont: {
+                family: 'Poppins, sans-serif',
+                size: 12
+            }
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                color: 'rgba(0, 0, 0, 0.1)',
+                drawBorder: false
+            },
+            ticks: {
+                font: {
+                    family: 'Poppins, sans-serif',
+                    size: 11
+                },
+                color: '#6c757d'
+            }
+        },
+        y: {
+            grid: {
+                color: 'rgba(0, 0, 0, 0.1)',
+                drawBorder: false
+            },
+            ticks: {
+                font: {
+                    family: 'Poppins, sans-serif',
+                    size: 11
+                },
+                color: '#6c757d'
+            }
+        }
+    },
+    animation: {
+        duration: 1000,
+        easing: 'easeInOutQuart'
+    }
+};
+
+// Enhanced error handling for plots
+function handlePlotError(containerId, errorMessage, retryFunction = null) {
     const container = document.getElementById(containerId);
     if (container) {
+        const retryBtn = retryFunction ? 
+            `<button class="btn btn-sm btn-outline-danger mt-3" onclick="${retryFunction}">
+                <i class="fas fa-sync-alt me-1"></i> Retry
+            </button>` : '';
+            
         container.innerHTML = `
-            <div class="plot-error">
-                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+            <div class="plot-error-enhanced">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                 <h5>Error Loading Plot</h5>
-                <p>${errorMessage}</p>
-                <button class="btn btn-sm btn-outline-danger mt-2" onclick="regeneratePlot('${containerId}')">
-                    <i class="fas fa-sync-alt me-1"></i> Retry
-                </button>
+                <p class="mb-3">${errorMessage}</p>
+                <div class="error-details">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        ${new Date().toLocaleTimeString()}
+                    </small>
+                </div>
+                ${retryBtn}
             </div>
         `;
     }
 }
 
-// Loading indicator for plots
-function showPlotLoading(containerId) {
+// Enhanced loading indicator with skeleton screens
+function showPlotLoading(containerId, message = 'Loading plot data...') {
     const container = document.getElementById(containerId);
     if (container) {
         container.innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner mb-3"></div>
-                <p>Loading plot data...</p>
+            <div class="plot-loading">
+                <div class="loading-spinner-enhanced"></div>
+                <p class="loading-text">${message}</p>
+                <div class="loading-progress">
+                    <div class="progress-bar-animated"></div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Show skeleton loader for charts
+function showSkeletonChart(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `
+            <div class="chart-skeleton">
+                <div class="skeleton-header">
+                    <div class="skeleton-line" style="width: 60%; height: 20px; margin-bottom: 10px;"></div>
+                    <div class="skeleton-line" style="width: 40%; height: 15px; margin-bottom: 20px;"></div>
+                </div>
+                <div class="skeleton-chart-area">
+                    <div class="skeleton-bars">
+                        <div class="skeleton-bar" style="height: 60%;"></div>
+                        <div class="skeleton-bar" style="height: 80%;"></div>
+                        <div class="skeleton-bar" style="height: 45%;"></div>
+                        <div class="skeleton-bar" style="height: 90%;"></div>
+                        <div class="skeleton-bar" style="height: 70%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-legend">
+                    <div class="skeleton-legend-item"></div>
+                    <div class="skeleton-legend-item"></div>
+                    <div class="skeleton-legend-item"></div>
+                </div>
             </div>
         `;
     }
@@ -120,35 +262,85 @@ function createAccuracyComparisonChart(containerId, metricsHistory) {
             return;
         }
         
-        // Layout configuration
+        // Enhanced layout configuration
         const layout = {
-            title: 'Model Accuracy Comparison',
-            xaxis: {
-                title: 'Training Round',
-                gridcolor: COLORS.grid,
-                gridwidth: 1,
-                zeroline: false
+            title: {
+                text: 'Model Accuracy Comparison',
+                font: {
+                    family: 'Poppins, sans-serif',
+                    size: 18,
+                    color: COLORS.text
+                },
+                x: 0.5,
+                xanchor: 'center'
             },
-            yaxis: {
-                title: 'Accuracy (%)',
-                gridcolor: COLORS.grid,
+            xaxis: {
+                title: {
+                    text: 'Training Round',
+                    font: {
+                        family: 'Poppins, sans-serif',
+                        size: 14,
+                        color: COLORS.text
+                    }
+                },
+                gridcolor: 'rgba(0, 0, 0, 0.1)',
                 gridwidth: 1,
                 zeroline: false,
-                range: [0, 100]
+                showline: true,
+                linecolor: 'rgba(0, 0, 0, 0.2)',
+                tickfont: {
+                    family: 'Poppins, sans-serif',
+                    size: 12,
+                    color: '#6c757d'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Accuracy (%)',
+                    font: {
+                        family: 'Poppins, sans-serif',
+                        size: 14,
+                        color: COLORS.text
+                    }
+                },
+                gridcolor: 'rgba(0, 0, 0, 0.1)',
+                gridwidth: 1,
+                zeroline: false,
+                range: [0, 100],
+                showline: true,
+                linecolor: 'rgba(0, 0, 0, 0.2)',
+                tickfont: {
+                    family: 'Poppins, sans-serif',
+                    size: 12,
+                    color: '#6c757d'
+                }
             },
             font: {
-                family: 'Segoe UI, sans-serif',
+                family: 'Poppins, sans-serif',
                 color: COLORS.text
             },
             legend: {
                 orientation: 'h',
-                y: -0.2
+                y: -0.15,
+                x: 0.5,
+                xanchor: 'center',
+                font: {
+                    family: 'Poppins, sans-serif',
+                    size: 12
+                },
+                bgcolor: 'rgba(255, 255, 255, 0.8)',
+                bordercolor: 'rgba(0, 0, 0, 0.1)',
+                borderwidth: 1
             },
-            margin: { t: 60, b: 80, l: 60, r: 30 },
-            plot_bgcolor: COLORS.background,
+            margin: { t: 80, b: 100, l: 80, r: 50 },
+            plot_bgcolor: 'rgba(248, 249, 250, 0.5)',
             paper_bgcolor: 'white',
-            hovermode: 'closest',
-            height: 450
+            hovermode: 'x unified',
+            height: 450,
+            transition: {
+                duration: 500,
+                easing: 'cubic-in-out'
+            }
         };
         
         // Create the plot
@@ -1018,4 +1210,282 @@ function getToastTitle(type) {
         info: 'Information'
     };
     return titles[type] || 'Notification';
+}
+
+// Enhanced Chart.js Functions
+
+// Create animated gauge chart using Chart.js
+function createGaugeChart(canvasId, value, label, color = '#667eea') {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    const percentage = Math.min(Math.max(value * 100, 0), 100);
+    
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [percentage, 100 - percentage],
+                backgroundColor: [color, 'rgba(233, 236, 239, 0.3)'],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            ...CHARTJS_CONFIG,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        },
+        plugins: [{
+            id: 'gaugeText',
+            beforeDraw: function(chart) {
+                const ctx = chart.ctx;
+                const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+                const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Draw percentage
+                ctx.font = 'bold 24px Poppins, sans-serif';
+                ctx.fillStyle = color;
+                ctx.fillText(percentage.toFixed(1) + '%', centerX, centerY - 5);
+                
+                // Draw label
+                ctx.font = '12px Poppins, sans-serif';
+                ctx.fillStyle = '#6c757d';
+                ctx.fillText(label, centerX, centerY + 20);
+                
+                ctx.restore();
+            }
+        }]
+    });
+}
+
+// Create animated line chart with gradient fill
+function createGradientLineChart(canvasId, data, options = {}) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    // Create gradient
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(102, 126, 234, 0.3)');
+    gradient.addColorStop(1, 'rgba(102, 126, 234, 0.05)');
+    
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: options.label || 'Data',
+                data: data.values || [],
+                borderColor: options.borderColor || '#667eea',
+                backgroundColor: gradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: options.borderColor || '#667eea',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            ...CHARTJS_CONFIG,
+            ...options,
+            scales: {
+                ...CHARTJS_CONFIG.scales,
+                y: {
+                    ...CHARTJS_CONFIG.scales.y,
+                    beginAtZero: true,
+                    max: options.maxValue || undefined
+                }
+            }
+        }
+    });
+}
+
+// Create animated bar chart with gradient colors
+function createGradientBarChart(canvasId, data, options = {}) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    const gradients = data.values.map((_, index) => {
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+        const colorPair = COLORS.gradients[Object.keys(COLORS.gradients)[index % Object.keys(COLORS.gradients).length]];
+        gradient.addColorStop(0, colorPair[0]);
+        gradient.addColorStop(1, colorPair[1]);
+        return gradient;
+    });
+    
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: options.label || 'Data',
+                data: data.values || [],
+                backgroundColor: gradients,
+                borderColor: gradients,
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            ...CHARTJS_CONFIG,
+            ...options,
+            scales: {
+                ...CHARTJS_CONFIG.scales,
+                y: {
+                    ...CHARTJS_CONFIG.scales.y,
+                    beginAtZero: true,
+                    max: options.maxValue || undefined
+                }
+            }
+        }
+    });
+}
+
+// Create radar chart for model comparison
+function createRadarChart(canvasId, data, options = {}) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    return new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: data.labels || ['Accuracy', 'F1 Score', 'Precision', 'Recall'],
+            datasets: data.datasets.map((dataset, index) => ({
+                label: dataset.label,
+                data: dataset.data,
+                borderColor: COLORS.gradients[Object.keys(COLORS.gradients)[index % Object.keys(COLORS.gradients).length]][0],
+                backgroundColor: COLORS.gradients[Object.keys(COLORS.gradients)[index % Object.keys(COLORS.gradients).length]][0] + '20',
+                borderWidth: 3,
+                pointBackgroundColor: COLORS.gradients[Object.keys(COLORS.gradients)[index % Object.keys(COLORS.gradients).length]][0],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5
+            }))
+        },
+        options: {
+            ...CHARTJS_CONFIG,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    angleLines: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    pointLabels: {
+                        font: {
+                            family: 'Poppins, sans-serif',
+                            size: 12
+                        },
+                        color: '#6c757d'
+                    },
+                    ticks: {
+                        display: false
+                    }
+                }
+            },
+            ...options
+        }
+    });
+}
+
+// Real-time chart update function
+function updateChartData(chart, newData, animated = true) {
+    if (!chart || !newData) return;
+    
+    if (chart.data.datasets && chart.data.datasets[0]) {
+        chart.data.datasets[0].data = newData.values || newData;
+        if (newData.labels) {
+            chart.data.labels = newData.labels;
+        }
+        
+        chart.update(animated ? 'active' : 'none');
+    }
+}
+
+// Destroy chart instance safely
+function destroyChart(chart) {
+    if (chart && typeof chart.destroy === 'function') {
+        chart.destroy();
+    }
+}
+
+// Enhanced plot regeneration with better error handling
+function regeneratePlot(containerId) {
+    const plotType = containerId.split('-')[0];
+    
+    // Show loading state
+    showPlotLoading(containerId, `Regenerating ${plotType} plot...`);
+    
+    // Add delay for better UX
+    setTimeout(() => {
+        switch(plotType) {
+            case 'accuracy':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('accuracy-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload accuracy plot');
+                }
+                break;
+            case 'f1':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('f1-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload F1 score plot');
+                }
+                break;
+            case 'radar':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('radar-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload radar plot');
+                }
+                break;
+            case 'training':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('training-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload training plot');
+                }
+                break;
+            case 'performance':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('performance-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload performance data');
+                }
+                break;
+            case 'improvements':
+                if (typeof loadPlotForTab === 'function') {
+                    loadPlotForTab('improvements-tab');
+                } else {
+                    handlePlotError(containerId, 'Unable to reload improvements plot');
+                }
+                break;
+            default:
+                handlePlotError(containerId, `Unknown plot type: ${plotType}`);
+                break;
+        }
+    }, 500);
 }

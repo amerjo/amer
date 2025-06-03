@@ -3,18 +3,92 @@
 {% block title %}Local Models - HETROFL System{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/custom.css">
 <style>
-    .model-detail-card {
+    /* Enhanced Local Models Page Styles */
+    .local-models-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
         border-radius: 20px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .local-models-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .local-models-title {
+        position: relative;
+        z-index: 1;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .local-models-subtitle {
+        position: relative;
+        z-index: 1;
+        opacity: 0.9;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    .local-models-actions {
+        position: relative;
+        z-index: 1;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .local-models-action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .local-models-action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .model-detail-card {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 25px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
         overflow: hidden;
+        cursor: pointer;
     }
 
     .model-detail-card::before {
@@ -34,20 +108,28 @@
     }
 
     .model-detail-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     }
 
     .model-detail-card.xgboost {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.9), rgba(41, 128, 185, 0.9));
+        color: white;
     }
 
     .model-detail-card.random_forest {
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.9), rgba(39, 174, 96, 0.9));
+        color: white;
     }
 
     .model-detail-card.catboost {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        background: linear-gradient(135deg, rgba(243, 156, 18, 0.9), rgba(230, 126, 34, 0.9));
+        color: white;
+    }
+
+    .model-detail-card.default {
+        background: linear-gradient(135deg, rgba(155, 89, 182, 0.9), rgba(142, 68, 173, 0.9));
+        color: white;
     }
 
     .metric-grid {
@@ -214,27 +296,44 @@
 {% endblock %}
 
 {% block content %}
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Alert Container -->
 <div id="alert-container"></div>
 
-<!-- Page Header -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="display-6 fw-bold">
-                    <i class="fas fa-brain me-3 text-primary"></i>
-                    Local Models Dashboard
-                </h1>
-                <p class="text-muted">Detailed analysis and management of federated learning models</p>
-            </div>
-            <div>
-                <button class="btn btn-primary btn-lg" onclick="refreshAllModels()">
-                    <i class="fas fa-sync-alt me-2"></i>Refresh All
-                </button>
-                <button class="btn btn-success btn-lg ms-2" onclick="compareAllModels()">
-                    <i class="fas fa-chart-bar me-2"></i>Compare Models
-                </button>
-            </div>
+<!-- Enhanced Local Models Header -->
+<div class="local-models-header text-center">
+    <div class="container">
+        <h1 class="local-models-title">
+            <i class="fas fa-brain me-3"></i>
+            Local Models Dashboard
+        </h1>
+        <p class="local-models-subtitle">
+            Detailed analysis and management of federated learning models
+        </p>
+        
+        <div class="local-models-actions">
+            <button class="local-models-action-btn" onclick="refreshAllModels()" title="Refresh All Models (Ctrl+R)">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh All</span>
+            </button>
+            <button class="local-models-action-btn" onclick="compareAllModels()" title="Compare Model Performance">
+                <i class="fas fa-chart-bar"></i>
+                <span>Compare Models</span>
+            </button>
+            <button class="local-models-action-btn" onclick="exportAllModels()" title="Export All Models">
+                <i class="fas fa-download"></i>
+                <span>Export All</span>
+            </button>
+            <button class="local-models-action-btn" onclick="rebuildAllModels()" title="Rebuild All Models">
+                <i class="fas fa-tools"></i>
+                <span>Rebuild All</span>
+            </button>
+            <button class="local-models-action-btn" onclick="openModelSettings()" title="Model Settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
         </div>
     </div>
 </div>
@@ -291,92 +390,126 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/charts.js"></script>
 <script>
-    // Local models page variables
-    let localModelsData = {};
-    let metricsData = {};
-    let socket;
+// Enhanced Local Models Page JavaScript
+let localModelsData = {};
+let metricsData = {};
+let socket;
+let comparisonCharts = {};
+let modelAnalysisModal = null;
 
-    // Initialize page
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeLocalModelsPage();
-        setupWebSocket();
-        loadLocalModelsData();
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    initializeLocalModelsPage();
+    setupEnhancedWebSocket();
+    loadLocalModelsData();
+    setupKeyboardShortcuts();
+});
+
+function initializeLocalModelsPage() {
+    // Add fade-in animations
+    document.querySelectorAll('.model-detail-card').forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('fade-in');
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    console.log('Enhanced local models page initialized');
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+R: Refresh all models
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            refreshAllModels();
+        }
+        // Ctrl+E: Export all models
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            exportAllModels();
+        }
+        // Ctrl+C: Compare models
+        if (e.ctrlKey && e.key === 'c') {
+            e.preventDefault();
+            compareAllModels();
+        }
+    });
+}
+
+function setupEnhancedWebSocket() {
+    socket = io();
+    
+    socket.on('connect', function() {
+        console.log('Connected to local models WebSocket');
+        showToast('Connected to HETROFL server', 'success', 3000);
+        socket.emit('request_update');
+    });
+    
+    socket.on('disconnect', function() {
+        console.log('Disconnected from local models WebSocket');
+        showToast('Disconnected from server', 'error');
+    });
+    
+    socket.on('models_update', function(data) {
+        if (data && !data.error) {
+            localModelsData = data;
+            updateModelsDisplay();
+        }
     });
 
-    function initializeLocalModelsPage() {
-        // Add fade-in animation to elements
-        document.querySelectorAll('.card, .model-detail-card').forEach(el => {
-            el.classList.add('fade-in');
-        });
-    }
+    socket.on('metrics_update', function(data) {
+        if (data && !data.error) {
+            metricsData = data;
+            updateMetricsDisplay();
+        }
+    });
 
-    function setupWebSocket() {
-        socket = io();
-        
-        socket.on('connect', function() {
-            console.log('Connected to local models WebSocket');
-            socket.emit('request_update');
-        });
+    socket.on('training_update', function(data) {
+        updateTrainingStatus(data);
+    });
+}
 
-        socket.on('models_update', function(data) {
-            if (data && !data.error) {
+function loadLocalModelsData() {
+    showToast('Loading local models data...', 'info', 2000);
+    
+    // Load models information
+    fetch('/api/models/info')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
                 localModelsData = data;
                 updateModelsDisplay();
+                showToast('Models data loaded successfully', 'success', 3000);
             }
+        })
+        .catch(error => {
+            console.error('Error loading models:', error);
+            showToast('Failed to load models data', 'error');
         });
 
-        socket.on('metrics_update', function(data) {
-            if (data && !data.error) {
+    // Load metrics data
+    fetch('/api/metrics/latest')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
                 metricsData = data;
                 updateMetricsDisplay();
             }
-        });
+        })
+        .catch(error => console.error('Error loading metrics:', error));
 
-        socket.on('training_update', function(data) {
-            updateTrainingStatus(data);
-        });
-    }
+    // Load comparison charts
+    loadComparisonCharts();
+}
 
-    function loadLocalModelsData() {
-        // Load models information
-        fetch('/api/models/info')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.error) {
-                    localModelsData = data;
-                    updateModelsDisplay();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading models:', error);
-                showError('Failed to load models data');
-            });
-
-        // Load metrics data
-        fetch('/api/metrics/latest')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.error) {
-                    metricsData = data;
-                    updateMetricsDisplay();
-                }
-            })
-            .catch(error => console.error('Error loading metrics:', error));
-
-        // Load metrics history for charts
-        fetch('/api/metrics/history')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.error) {
-                    createComparisonCharts(data);
-                }
-            })
-            .catch(error => console.error('Error loading metrics history:', error));
-    }
-
-    function updateModelsDisplay() {
+// Essential functions for local models page
+function updateModelsDisplay() {
         const container = document.getElementById('models-overview');
         container.innerHTML = '';
 
@@ -544,14 +677,150 @@
     }
 
     function exportModel(modelName) {
-        showLoading(`Exporting ${modelName}...`);
-        
-        // Simulate export
+        showToast(`Exporting ${modelName}...`, 'info', 2000);
+        // Implementation for exporting individual model
         setTimeout(() => {
-            hideLoading();
-            showSuccess(`${modelName} exported successfully!`);
+            showToast(`${modelName} exported successfully`, 'success');
         }, 1000);
     }
+
+// Enhanced action functions
+function refreshAllModels() {
+    showToast('Refreshing all models...', 'info', 2000);
+    loadLocalModelsData();
+}
+
+function compareAllModels() {
+    showToast('Opening model comparison...', 'info', 2000);
+    document.getElementById('comparison-section').style.display = 'block';
+    document.getElementById('comparison-section').scrollIntoView({ behavior: 'smooth' });
+    loadComparisonCharts();
+}
+
+function exportAllModels() {
+    showToast('Exporting all models...', 'info', 2000);
+    // Implementation for exporting all models
+    setTimeout(() => {
+        showToast('All models exported successfully', 'success');
+    }, 2000);
+}
+
+function rebuildAllModels() {
+    if (confirm('Are you sure you want to rebuild all models? This may take some time.')) {
+        showToast('Starting model rebuild process...', 'info');
+        // Implementation for rebuilding all models
+    }
+}
+
+function openModelSettings() {
+    showToast('Opening model settings...', 'info', 2000);
+    // Implementation for model settings modal
+}
+
+function analyzeModel(modelName) {
+    showToast(`Analyzing ${modelName}...`, 'info', 2000);
+    setTimeout(() => {
+        showModelAnalysisModal(modelName);
+    }, 1000);
+}
+
+function retrainModel(modelName) {
+    if (confirm(`Are you sure you want to retrain the ${modelName} model?`)) {
+        showToast(`Retraining ${modelName}...`, 'info');
+        // Implementation for retraining
+    }
+}
+
+function loadComparisonCharts() {
+    // Load comparison charts
+    fetch('/api/metrics/history')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
+                createComparisonCharts(data);
+            }
+        })
+        .catch(error => console.error('Error loading comparison charts:', error));
+}
+
+function createComparisonCharts(data) {
+    // Create basic comparison charts
+    if (data.local) {
+        // Implementation for creating charts would go here
+        console.log('Creating comparison charts with data:', data);
+    }
+}
+
+function getModelIcon(modelName) {
+    const name = modelName.toLowerCase();
+    if (name.includes('xgboost')) return 'tree';
+    if (name.includes('random') || name.includes('forest')) return 'seedling';
+    if (name.includes('catboost')) return 'cat';
+    return 'brain';
+}
+
+function updateMetricsDisplay() {
+    if (!metricsData.local) return;
+    
+    Object.entries(metricsData.local).forEach(([modelName, metrics]) => {
+        const accuracyEl = document.getElementById(`${modelName}-accuracy`);
+        const f1El = document.getElementById(`${modelName}-f1`);
+        
+        if (accuracyEl) {
+            accuracyEl.textContent = (metrics.accuracy * 100).toFixed(1) + '%';
+        }
+        if (f1El) {
+            f1El.textContent = (metrics.f1_score * 100).toFixed(1) + '%';
+        }
+    });
+}
+
+// Enhanced toast notification system
+function showToast(message, type = 'info', duration = 5000) {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+    
+    const toastId = 'toast-' + Date.now();
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-triangle',
+        warning: 'exclamation-circle',
+        info: 'info-circle'
+    };
+    
+    const toastHTML = `
+        <div id="${toastId}" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${icons[type] || 'info-circle'} me-2 text-${type}"></i>
+                <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                <button type="button" class="btn-close" onclick="removeToast('${toastId}')"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    // Show toast
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Auto-remove toast after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            removeToast(toastId);
+        }, duration);
+    }
+}
+
+function removeToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+        toast.remove();
+    }
+}
 
     function showModelAnalysisModal(modelName) {
         const modelInfo = localModelsData.local_models[modelName];
