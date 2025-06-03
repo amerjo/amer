@@ -1,56 +1,347 @@
 {% extends "base.html" %}
 
-{% block title %}Metrics & Analytics - HETROFL System{% endblock %}
+{% block title %}Advanced Metrics Dashboard - HETROFL System{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-chart-line me-2"></i>Metrics & Analytics</h2>
-                <div>
-                    <button class="btn btn-primary" onclick="refreshMetrics()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh
-                    </button>
-                    <button class="btn btn-success" onclick="exportMetrics()">
-                        <i class="fas fa-download me-2"></i>Export
-                    </button>
+            <div class="dashboard-header text-center">
+                <h1><i class="fas fa-chart-line me-3"></i>Advanced Metrics Dashboard</h1>
+                <p class="lead mb-0">Real-time Performance Analytics & Model Insights</p>
+                <div class="live-indicator mt-2">
+                    <span class="live-dot"></span>
+                    <span>Live Updates Active</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- System Status -->
+    <!-- Control Panel -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Status</h5>
-                </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="metric-card bg-primary">
-                                <div class="metric-value" id="system-status">Loading...</div>
-                                <div class="metric-label">System Status</div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0 me-4"><i class="fas fa-cogs me-2"></i>Dashboard Controls</h5>
+                            <div class="enhanced-tabs">
+                                <div class="enhanced-tab active" onclick="switchTab('overview')">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Overview
+                                </div>
+                                <div class="enhanced-tab" onclick="switchTab('detailed')">
+                                    <i class="fas fa-chart-bar me-1"></i>Detailed
+                                </div>
+                                <div class="enhanced-tab" onclick="switchTab('comparison')">
+                                    <i class="fas fa-balance-scale me-1"></i>Comparison
+                                </div>
+                                <div class="enhanced-tab" onclick="switchTab('trends')">
+                                    <i class="fas fa-trending-up me-1"></i>Trends
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-card bg-success">
-                                <div class="metric-value" id="training-status">Loading...</div>
-                                <div class="metric-label">Training Status</div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="refreshMetrics()">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-success" onclick="exportMetrics()">
+                                <i class="fas fa-download me-2"></i>Export
+                            </button>
+                            <button class="btn btn-outline-info" onclick="toggleAutoRefresh()">
+                                <i class="fas fa-play me-2"></i><span id="auto-refresh-text">Auto Refresh</span>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="resetDashboard()">
+                                <i class="fas fa-undo me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content Container -->
+    <div id="tab-content">
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content active">
+            <!-- Key Performance Indicators -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4><i class="fas fa-tachometer-alt me-2"></i>Key Performance Indicators</h4>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card primary">
+                        <div class="metric-value" id="overall-accuracy">Loading...</div>
+                        <div class="metric-label">Overall Accuracy</div>
+                        <div class="metric-change" id="accuracy-change">
+                            <i class="fas fa-arrow-up"></i> +2.3%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card success">
+                        <div class="metric-value" id="best-model-score">Loading...</div>
+                        <div class="metric-label">Best Model Score</div>
+                        <div class="metric-change" id="best-model-change">
+                            <i class="fas fa-arrow-up"></i> +1.8%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card warning">
+                        <div class="metric-value" id="training-rounds">Loading...</div>
+                        <div class="metric-label">Training Rounds</div>
+                        <div class="metric-change" id="rounds-change">
+                            <i class="fas fa-plus"></i> +5 rounds
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card info">
+                        <div class="metric-value" id="convergence-rate">Loading...</div>
+                        <div class="metric-label">Convergence Rate</div>
+                        <div class="metric-change" id="convergence-change">
+                            <i class="fas fa-arrow-up"></i> +0.5%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Performance Gauges -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4><i class="fas fa-gauge-high me-2"></i>Real-time Performance Gauges</h4>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Global Model Accuracy</h6>
+                        </div>
+                        <div id="global-accuracy-gauge" style="height: 200px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">XGBoost Performance</h6>
+                        </div>
+                        <div id="xgboost-gauge" style="height: 200px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Random Forest Performance</h6>
+                        </div>
+                        <div id="rf-gauge" style="height: 200px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">CatBoost Performance</h6>
+                        </div>
+                        <div id="catboost-gauge" style="height: 200px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-axis Performance Chart -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h5 class="plot-title">Multi-axis Performance Analysis</h5>
+                            <div class="plot-controls">
+                                <button class="plot-btn" onclick="toggleMetric('accuracy')">Accuracy</button>
+                                <button class="plot-btn" onclick="toggleMetric('loss')">Loss</button>
+                                <button class="plot-btn" onclick="toggleMetric('time')">Time</button>
+                                <button class="plot-btn" onclick="exportChart('multi-axis-chart')">
+                                    <i class="fas fa-download"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-card bg-info">
-                                <div class="metric-value" id="active-models">Loading...</div>
-                                <div class="metric-label">Active Models</div>
+                        <div id="multi-axis-chart" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Tab -->
+        <div id="detailed-tab" class="tab-content">
+            <!-- Model Performance Heatmap -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h5 class="plot-title">Model Performance Heatmap</h5>
+                            <div class="plot-controls">
+                                <button class="plot-btn" onclick="refreshHeatmap()">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="plot-btn" onclick="exportChart('performance-heatmap')">
+                                    <i class="fas fa-download"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-card bg-warning">
-                                <div class="metric-value" id="last-update">Loading...</div>
-                                <div class="metric-label">Last Update</div>
+                        <div id="performance-heatmap" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Distribution Analysis -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Accuracy Distribution</h6>
+                        </div>
+                        <div id="accuracy-boxplot" style="height: 350px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Loss Distribution</h6>
+                        </div>
+                        <div id="loss-boxplot" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Matrix -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h5 class="plot-title">Model Metrics Correlation Matrix</h5>
+                            <div class="plot-controls">
+                                <button class="plot-btn" onclick="updateCorrelation()">Update</button>
+                                <button class="plot-btn" onclick="exportChart('correlation-matrix')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="correlation-matrix" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Tab -->
+        <div id="comparison-tab" class="tab-content">
+            <!-- Model vs Model Comparison -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h5 class="plot-title">Model Performance Radar Chart</h5>
+                            <div class="plot-controls">
+                                <select class="form-select form-select-sm" style="width: auto;" onchange="updateRadarChart(this.value)">
+                                    <option value="all">All Models</option>
+                                    <option value="local">Local Models Only</option>
+                                    <option value="global">Global Model Only</option>
+                                </select>
+                                <button class="plot-btn" onclick="exportChart('radar-comparison')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="radar-comparison" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side-by-side Comparison -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Global vs Local Performance</h6>
+                        </div>
+                        <div id="global-vs-local" style="height: 400px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Model Improvement Rates</h6>
+                        </div>
+                        <div id="improvement-rates" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div id="trends-tab" class="tab-content">
+            <!-- Time Series Analysis -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h5 class="plot-title">Time Series Analysis with Trend Predictions</h5>
+                            <div class="plot-controls">
+                                <button class="plot-btn" onclick="togglePredictions()">Toggle Predictions</button>
+                                <button class="plot-btn" onclick="changePredictionWindow()">Prediction Window</button>
+                                <button class="plot-btn" onclick="exportChart('time-series-analysis')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="time-series-analysis" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Convergence Analysis -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Convergence Rate Analysis</h6>
+                        </div>
+                        <div id="convergence-analysis" style="height: 350px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="plot-container">
+                        <div class="plot-header">
+                            <h6 class="plot-title">Training Efficiency Metrics</h6>
+                        </div>
+                        <div id="efficiency-metrics" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Statistical Summary -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Statistical Summary & Insights</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="stat-summary">
+                                        <h6>Performance Statistics</h6>
+                                        <div id="performance-stats">Loading...</div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="stat-summary">
+                                        <h6>Training Insights</h6>
+                                        <div id="training-insights">Loading...</div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="stat-summary">
+                                        <h6>Recommendations</h6>
+                                        <div id="recommendations">Loading...</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -187,19 +478,125 @@
 <script>
 let metricsSocket;
 let metricsData = {};
+let autoRefreshEnabled = true;
+let autoRefreshInterval;
+let currentTab = 'overview';
+let visibleMetrics = ['accuracy', 'loss', 'time'];
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializeMetrics();
+    initializeAdvancedMetrics();
     setupWebSocket();
     loadInitialData();
+    initializeTabSystem();
 });
 
-function initializeMetrics() {
-    // Initialize empty charts
+function initializeAdvancedMetrics() {
+    // Initialize all chart containers
     initializeCharts();
+    initializeGauges();
+    initializeAdvancedCharts();
     
     // Set up auto-refresh
-    setInterval(refreshMetrics, 5000); // Refresh every 5 seconds
+    startAutoRefresh();
+}
+
+function initializeTabSystem() {
+    // Set up tab switching
+    document.querySelectorAll('.enhanced-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.onclick.toString().match(/'([^']+)'/)[1];
+            switchTab(tabName);
+        });
+    });
+}
+
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.enhanced-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    const targetTab = document.getElementById(`${tabName}-tab`);
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'block';
+        
+        // Initialize charts for the active tab
+        setTimeout(() => {
+            initializeTabCharts(tabName);
+        }, 100);
+    }
+    
+    currentTab = tabName;
+}
+
+function initializeTabCharts(tabName) {
+    switch(tabName) {
+        case 'overview':
+            initializeGauges();
+            initializeMultiAxisChart();
+            break;
+        case 'detailed':
+            initializeHeatmap();
+            initializeBoxPlots();
+            initializeCorrelationMatrix();
+            break;
+        case 'comparison':
+            initializeRadarChart();
+            initializeComparisonCharts();
+            break;
+        case 'trends':
+            initializeTimeSeriesAnalysis();
+            initializeConvergenceAnalysis();
+            break;
+    }
+}
+
+function startAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    if (autoRefreshEnabled) {
+        autoRefreshInterval = setInterval(() => {
+            refreshMetrics();
+            updateRealTimeData();
+        }, 5000); // Refresh every 5 seconds
+    }
+}
+
+function toggleAutoRefresh() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    const button = document.querySelector('[onclick="toggleAutoRefresh()"]');
+    const text = document.getElementById('auto-refresh-text');
+    const icon = button.querySelector('i');
+    
+    if (autoRefreshEnabled) {
+        text.textContent = 'Auto Refresh';
+        icon.className = 'fas fa-pause me-2';
+        startAutoRefresh();
+    } else {
+        text.textContent = 'Manual Mode';
+        icon.className = 'fas fa-play me-2';
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+    }
+}
+
+function resetDashboard() {
+    // Reset all charts and data
+    currentTab = 'overview';
+    switchTab('overview');
+    refreshMetrics();
+    showToast('Dashboard reset successfully', 'success');
 }
 
 function setupWebSocket() {
@@ -440,7 +837,7 @@ function updateMetricsHistory(data) {
 }
 
 function initializeCharts() {
-    // Initialize empty charts with proper placeholder data
+    // Initialize basic charts (keeping existing functionality)
     const emptyData = [{
         x: [0],
         y: [0],
@@ -457,37 +854,437 @@ function initializeCharts() {
         font: { size: 12 }
     };
     
-    // Accuracy chart
-    Plotly.newPlot('accuracy-chart', emptyData, {
-        ...layout, 
-        title: 'Accuracy Over Time',
-        xaxis: { title: 'Training Round' },
-        yaxis: { title: 'Accuracy (%)', range: [0, 100] }
-    });
+    // Only initialize if containers exist
+    if (document.getElementById('accuracy-chart')) {
+        Plotly.newPlot('accuracy-chart', emptyData, {
+            ...layout, 
+            title: 'Accuracy Over Time',
+            xaxis: { title: 'Training Round' },
+            yaxis: { title: 'Accuracy (%)', range: [0, 100] }
+        });
+    }
     
-    // Loss chart
-    Plotly.newPlot('loss-chart', emptyData, {
-        ...layout, 
-        title: 'Loss Over Time',
-        xaxis: { title: 'Training Round' },
-        yaxis: { title: 'Loss' }
-    });
+    if (document.getElementById('loss-chart')) {
+        Plotly.newPlot('loss-chart', emptyData, {
+            ...layout, 
+            title: 'Loss Over Time',
+            xaxis: { title: 'Training Round' },
+            yaxis: { title: 'Loss' }
+        });
+    }
     
-    // Comparison chart
-    const emptyBarData = [{
-        x: ['No Data'],
-        y: [0],
-        type: 'bar',
-        name: 'Accuracy',
-        marker: { color: '#95a5a6' }
+    if (document.getElementById('comparison-chart')) {
+        const emptyBarData = [{
+            x: ['No Data'],
+            y: [0],
+            type: 'bar',
+            name: 'Accuracy',
+            marker: { color: '#95a5a6' }
+        }];
+        
+        Plotly.newPlot('comparison-chart', emptyBarData, {
+            ...layout, 
+            title: 'Model Performance Comparison',
+            xaxis: { title: 'Models' },
+            yaxis: { title: 'Performance (%)', range: [0, 100] }
+        });
+    }
+}
+
+function initializeGauges() {
+    // Initialize performance gauge charts
+    const gaugeIds = ['global-accuracy-gauge', 'xgboost-gauge', 'rf-gauge', 'catboost-gauge'];
+    const gaugeNames = ['Global Model', 'XGBoost', 'Random Forest', 'CatBoost'];
+    
+    gaugeIds.forEach((id, index) => {
+        const container = document.getElementById(id);
+        if (container) {
+            createPerformanceMeter(id, 0, gaugeNames[index]);
+        }
+    });
+}
+
+function initializeAdvancedCharts() {
+    // Initialize advanced chart containers with loading states
+    const advancedChartIds = [
+        'multi-axis-chart', 'performance-heatmap', 'accuracy-boxplot', 
+        'loss-boxplot', 'correlation-matrix', 'radar-comparison',
+        'global-vs-local', 'improvement-rates', 'time-series-analysis',
+        'convergence-analysis', 'efficiency-metrics'
+    ];
+    
+    advancedChartIds.forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+            showPlotLoading(id);
+        }
+    });
+}
+
+function initializeMultiAxisChart() {
+    const container = document.getElementById('multi-axis-chart');
+    if (!container) return;
+    
+    // Create multi-axis chart with accuracy, loss, and training time
+    const data = [
+        {
+            x: [1, 2, 3, 4, 5],
+            y: [85, 87, 89, 91, 93],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Accuracy (%)',
+            line: { color: '#3498db', width: 3 },
+            yaxis: 'y'
+        },
+        {
+            x: [1, 2, 3, 4, 5],
+            y: [0.8, 0.6, 0.4, 0.3, 0.2],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Loss',
+            line: { color: '#e74c3c', width: 3 },
+            yaxis: 'y2'
+        },
+        {
+            x: [1, 2, 3, 4, 5],
+            y: [120, 115, 110, 105, 100],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Training Time (s)',
+            line: { color: '#f39c12', width: 3 },
+            yaxis: 'y3'
+        }
+    ];
+    
+    const layout = {
+        title: 'Multi-axis Performance Analysis',
+        xaxis: { title: 'Training Round' },
+        yaxis: {
+            title: 'Accuracy (%)',
+            side: 'left',
+            range: [0, 100]
+        },
+        yaxis2: {
+            title: 'Loss',
+            side: 'right',
+            overlaying: 'y',
+            range: [0, 1]
+        },
+        yaxis3: {
+            title: 'Time (s)',
+            side: 'right',
+            overlaying: 'y',
+            position: 0.95,
+            range: [0, 200]
+        },
+        legend: { orientation: 'h', y: -0.2 },
+        margin: { l: 60, r: 80, t: 60, b: 80 },
+        height: 500
+    };
+    
+    Plotly.newPlot('multi-axis-chart', data, layout, { responsive: true });
+}
+
+function initializeHeatmap() {
+    const container = document.getElementById('performance-heatmap');
+    if (!container) return;
+    
+    // Create performance heatmap
+    const data = [{
+        z: [
+            [0.92, 0.89, 0.91, 0.88],
+            [0.88, 0.85, 0.87, 0.84],
+            [0.90, 0.87, 0.89, 0.86],
+            [0.85, 0.82, 0.84, 0.81]
+        ],
+        x: ['Accuracy', 'F1-Score', 'Precision', 'Recall'],
+        y: ['Global MLP', 'XGBoost', 'Random Forest', 'CatBoost'],
+        type: 'heatmap',
+        colorscale: 'Viridis',
+        showscale: true
     }];
     
-    Plotly.newPlot('comparison-chart', emptyBarData, {
-        ...layout, 
-        title: 'Model Performance Comparison',
-        xaxis: { title: 'Models' },
-        yaxis: { title: 'Performance (%)', range: [0, 100] }
-    });
+    const layout = {
+        title: 'Model Performance Heatmap',
+        xaxis: { title: 'Metrics' },
+        yaxis: { title: 'Models' },
+        margin: { l: 100, r: 50, t: 60, b: 60 },
+        height: 400
+    };
+    
+    Plotly.newPlot('performance-heatmap', data, layout, { responsive: true });
+}
+
+function initializeBoxPlots() {
+    // Accuracy distribution
+    const accuracyContainer = document.getElementById('accuracy-boxplot');
+    if (accuracyContainer) {
+        const accuracyData = [
+            {
+                y: [0.85, 0.87, 0.89, 0.91, 0.93, 0.88, 0.90, 0.92],
+                type: 'box',
+                name: 'Global Model',
+                marker: { color: '#3498db' }
+            },
+            {
+                y: [0.82, 0.84, 0.86, 0.88, 0.90, 0.85, 0.87, 0.89],
+                type: 'box',
+                name: 'Local Models',
+                marker: { color: '#2ecc71' }
+            }
+        ];
+        
+        const accuracyLayout = {
+            title: 'Accuracy Distribution',
+            yaxis: { title: 'Accuracy' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 350
+        };
+        
+        Plotly.newPlot('accuracy-boxplot', accuracyData, accuracyLayout, { responsive: true });
+    }
+    
+    // Loss distribution
+    const lossContainer = document.getElementById('loss-boxplot');
+    if (lossContainer) {
+        const lossData = [
+            {
+                y: [0.15, 0.13, 0.11, 0.09, 0.07, 0.12, 0.10, 0.08],
+                type: 'box',
+                name: 'Global Model',
+                marker: { color: '#e74c3c' }
+            },
+            {
+                y: [0.18, 0.16, 0.14, 0.12, 0.10, 0.15, 0.13, 0.11],
+                type: 'box',
+                name: 'Local Models',
+                marker: { color: '#f39c12' }
+            }
+        ];
+        
+        const lossLayout = {
+            title: 'Loss Distribution',
+            yaxis: { title: 'Loss' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 350
+        };
+        
+        Plotly.newPlot('loss-boxplot', lossData, lossLayout, { responsive: true });
+    }
+}
+
+function initializeCorrelationMatrix() {
+    const container = document.getElementById('correlation-matrix');
+    if (!container) return;
+    
+    const data = [{
+        z: [
+            [1.0, 0.85, 0.78, 0.82],
+            [0.85, 1.0, 0.72, 0.79],
+            [0.78, 0.72, 1.0, 0.88],
+            [0.82, 0.79, 0.88, 1.0]
+        ],
+        x: ['Accuracy', 'F1-Score', 'Precision', 'Recall'],
+        y: ['Accuracy', 'F1-Score', 'Precision', 'Recall'],
+        type: 'heatmap',
+        colorscale: 'RdBu',
+        zmid: 0,
+        showscale: true
+    }];
+    
+    const layout = {
+        title: 'Metrics Correlation Matrix',
+        xaxis: { title: 'Metrics' },
+        yaxis: { title: 'Metrics' },
+        margin: { l: 80, r: 50, t: 60, b: 80 },
+        height: 500
+    };
+    
+    Plotly.newPlot('correlation-matrix', data, layout, { responsive: true });
+}
+
+function initializeRadarChart() {
+    const container = document.getElementById('radar-comparison');
+    if (!container) return;
+    
+    const data = [
+        {
+            type: 'scatterpolar',
+            r: [92, 89, 91, 88, 92],
+            theta: ['Accuracy', 'F1-Score', 'Precision', 'Recall', 'Accuracy'],
+            fill: 'toself',
+            name: 'Global MLP',
+            line: { color: '#3498db' }
+        },
+        {
+            type: 'scatterpolar',
+            r: [88, 85, 87, 84, 88],
+            theta: ['Accuracy', 'F1-Score', 'Precision', 'Recall', 'Accuracy'],
+            fill: 'toself',
+            name: 'XGBoost',
+            line: { color: '#2ecc71' }
+        },
+        {
+            type: 'scatterpolar',
+            r: [85, 82, 84, 81, 85],
+            theta: ['Accuracy', 'F1-Score', 'Precision', 'Recall', 'Accuracy'],
+            fill: 'toself',
+            name: 'Random Forest',
+            line: { color: '#f39c12' }
+        }
+    ];
+    
+    const layout = {
+        title: 'Model Performance Radar Chart',
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [0, 100]
+            }
+        },
+        margin: { l: 60, r: 60, t: 60, b: 60 },
+        height: 500
+    };
+    
+    Plotly.newPlot('radar-comparison', data, layout, { responsive: true });
+}
+
+function initializeComparisonCharts() {
+    // Global vs Local comparison
+    const globalVsLocalContainer = document.getElementById('global-vs-local');
+    if (globalVsLocalContainer) {
+        const data = [
+            {
+                x: ['Round 1', 'Round 2', 'Round 3', 'Round 4', 'Round 5'],
+                y: [85, 87, 89, 91, 93],
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Global Model',
+                line: { color: '#3498db', width: 3 }
+            },
+            {
+                x: ['Round 1', 'Round 2', 'Round 3', 'Round 4', 'Round 5'],
+                y: [82, 84, 86, 88, 90],
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Local Average',
+                line: { color: '#2ecc71', width: 3 }
+            }
+        ];
+        
+        const layout = {
+            title: 'Global vs Local Performance',
+            xaxis: { title: 'Training Round' },
+            yaxis: { title: 'Accuracy (%)' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 400
+        };
+        
+        Plotly.newPlot('global-vs-local', data, layout, { responsive: true });
+    }
+    
+    // Improvement rates
+    const improvementContainer = document.getElementById('improvement-rates');
+    if (improvementContainer) {
+        const data = [{
+            x: ['Global MLP', 'XGBoost', 'Random Forest', 'CatBoost'],
+            y: [8.5, 12.3, 9.7, 11.2],
+            type: 'bar',
+            marker: {
+                color: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c']
+            }
+        }];
+        
+        const layout = {
+            title: 'Model Improvement Rates (%)',
+            xaxis: { title: 'Models' },
+            yaxis: { title: 'Improvement (%)' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 400
+        };
+        
+        Plotly.newPlot('improvement-rates', data, layout, { responsive: true });
+    }
+}
+
+function initializeTimeSeriesAnalysis() {
+    const container = document.getElementById('time-series-analysis');
+    if (!container) return;
+    
+    const data = [
+        {
+            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            y: [85, 87, 89, 91, 93, 94, 95, 96, 97, 98],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Actual Performance',
+            line: { color: '#3498db', width: 3 }
+        },
+        {
+            x: [8, 9, 10, 11, 12],
+            y: [96, 97, 98, 99, 99.5],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Predicted Trend',
+            line: { color: '#e74c3c', width: 2, dash: 'dash' }
+        }
+    ];
+    
+    const layout = {
+        title: 'Time Series Analysis with Predictions',
+        xaxis: { title: 'Training Round' },
+        yaxis: { title: 'Performance (%)' },
+        margin: { l: 60, r: 30, t: 60, b: 60 },
+        height: 500
+    };
+    
+    Plotly.newPlot('time-series-analysis', data, layout, { responsive: true });
+}
+
+function initializeConvergenceAnalysis() {
+    const convergenceContainer = document.getElementById('convergence-analysis');
+    if (convergenceContainer) {
+        const data = [{
+            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            y: [15, 12, 8, 5, 3, 2, 1.5, 1, 0.8, 0.5],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Convergence Rate',
+            line: { color: '#9b59b6', width: 3 }
+        }];
+        
+        const layout = {
+            title: 'Model Convergence Analysis',
+            xaxis: { title: 'Training Round' },
+            yaxis: { title: 'Loss Reduction Rate' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 350
+        };
+        
+        Plotly.newPlot('convergence-analysis', data, layout, { responsive: true });
+    }
+    
+    const efficiencyContainer = document.getElementById('efficiency-metrics');
+    if (efficiencyContainer) {
+        const data = [{
+            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            y: [120, 115, 110, 105, 100, 98, 95, 92, 90, 88],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Training Time (s)',
+            line: { color: '#1abc9c', width: 3 }
+        }];
+        
+        const layout = {
+            title: 'Training Efficiency Over Time',
+            xaxis: { title: 'Training Round' },
+            yaxis: { title: 'Time per Round (s)' },
+            margin: { l: 60, r: 30, t: 60, b: 60 },
+            height: 350
+        };
+        
+        Plotly.newPlot('efficiency-metrics', data, layout, { responsive: true });
+    }
 }
 
 function updateCharts(data) {
@@ -777,6 +1574,217 @@ function exportMetrics() {
         });
 }
 
+// Advanced chart interaction functions
+function toggleMetric(metric) {
+    if (visibleMetrics.includes(metric)) {
+        visibleMetrics = visibleMetrics.filter(m => m !== metric);
+    } else {
+        visibleMetrics.push(metric);
+    }
+    updateMultiAxisChart();
+}
+
+function updateMultiAxisChart() {
+    // Update the multi-axis chart based on visible metrics
+    initializeMultiAxisChart();
+}
+
+function refreshHeatmap() {
+    showPlotLoading('performance-heatmap');
+    setTimeout(() => {
+        initializeHeatmap();
+    }, 1000);
+}
+
+function updateCorrelation() {
+    showPlotLoading('correlation-matrix');
+    setTimeout(() => {
+        initializeCorrelationMatrix();
+    }, 1000);
+}
+
+function updateRadarChart(filter) {
+    showPlotLoading('radar-comparison');
+    setTimeout(() => {
+        initializeRadarChart();
+    }, 1000);
+}
+
+function togglePredictions() {
+    // Toggle prediction visibility in time series
+    initializeTimeSeriesAnalysis();
+}
+
+function changePredictionWindow() {
+    // Change prediction window size
+    initializeTimeSeriesAnalysis();
+}
+
+function updateRealTimeData() {
+    // Update KPIs and gauges with real-time data
+    updateKPIs();
+    updateGauges();
+    updateStatisticalSummary();
+}
+
+function updateKPIs() {
+    // Update Key Performance Indicators
+    fetch('/api/metrics/latest')
+        .then(response => response.json())
+        .then(data => {
+            if (data.global) {
+                document.getElementById('overall-accuracy').textContent = 
+                    (data.global.accuracy * 100).toFixed(1) + '%';
+            }
+            
+            // Find best model
+            let bestScore = 0;
+            let bestModel = 'N/A';
+            if (data.local) {
+                Object.entries(data.local).forEach(([name, metrics]) => {
+                    if (metrics.accuracy > bestScore) {
+                        bestScore = metrics.accuracy;
+                        bestModel = name;
+                    }
+                });
+            }
+            
+            document.getElementById('best-model-score').textContent = 
+                (bestScore * 100).toFixed(1) + '%';
+        })
+        .catch(error => console.error('Error updating KPIs:', error));
+}
+
+function updateGauges() {
+    // Update performance gauges with latest data
+    fetch('/api/metrics/latest')
+        .then(response => response.json())
+        .then(data => {
+            if (data.global) {
+                createPerformanceMeter('global-accuracy-gauge', 
+                    data.global.accuracy * 100, 'Global Model');
+            }
+            
+            if (data.local) {
+                if (data.local.xgboost) {
+                    createPerformanceMeter('xgboost-gauge', 
+                        data.local.xgboost.accuracy * 100, 'XGBoost');
+                }
+                if (data.local.random_forest) {
+                    createPerformanceMeter('rf-gauge', 
+                        data.local.random_forest.accuracy * 100, 'Random Forest');
+                }
+                if (data.local.catboost) {
+                    createPerformanceMeter('catboost-gauge', 
+                        data.local.catboost.accuracy * 100, 'CatBoost');
+                }
+            }
+        })
+        .catch(error => console.error('Error updating gauges:', error));
+}
+
+function updateStatisticalSummary() {
+    // Update statistical summary and insights
+    fetch('/api/metrics/history')
+        .then(response => response.json())
+        .then(data => {
+            updatePerformanceStats(data);
+            updateTrainingInsights(data);
+            updateRecommendations(data);
+        })
+        .catch(error => console.error('Error updating statistical summary:', error));
+}
+
+function updatePerformanceStats(data) {
+    const container = document.getElementById('performance-stats');
+    if (!container) return;
+    
+    let stats = '<div class="stat-item">No data available</div>';
+    
+    if (data.global && data.global.length > 0) {
+        const accuracies = data.global.map(d => d.accuracy);
+        const avgAccuracy = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
+        const maxAccuracy = Math.max(...accuracies);
+        const minAccuracy = Math.min(...accuracies);
+        
+        stats = `
+            <div class="stat-item">
+                <strong>Average Accuracy:</strong> ${(avgAccuracy * 100).toFixed(2)}%
+            </div>
+            <div class="stat-item">
+                <strong>Best Performance:</strong> ${(maxAccuracy * 100).toFixed(2)}%
+            </div>
+            <div class="stat-item">
+                <strong>Performance Range:</strong> ${((maxAccuracy - minAccuracy) * 100).toFixed(2)}%
+            </div>
+            <div class="stat-item">
+                <strong>Training Rounds:</strong> ${data.global.length}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = stats;
+}
+
+function updateTrainingInsights(data) {
+    const container = document.getElementById('training-insights');
+    if (!container) return;
+    
+    let insights = '<div class="stat-item">No insights available</div>';
+    
+    if (data.global && data.global.length > 1) {
+        const firstAcc = data.global[0].accuracy;
+        const lastAcc = data.global[data.global.length - 1].accuracy;
+        const improvement = ((lastAcc - firstAcc) / firstAcc * 100);
+        
+        insights = `
+            <div class="stat-item">
+                <strong>Overall Improvement:</strong> ${improvement.toFixed(2)}%
+            </div>
+            <div class="stat-item">
+                <strong>Convergence:</strong> ${improvement > 5 ? 'Good' : 'Slow'}
+            </div>
+            <div class="stat-item">
+                <strong>Training Stability:</strong> ${improvement > 0 ? 'Stable' : 'Unstable'}
+            </div>
+            <div class="stat-item">
+                <strong>Model Status:</strong> ${lastAcc > 0.9 ? 'Excellent' : lastAcc > 0.8 ? 'Good' : 'Needs Improvement'}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = insights;
+}
+
+function updateRecommendations(data) {
+    const container = document.getElementById('recommendations');
+    if (!container) return;
+    
+    let recommendations = '<div class="stat-item">No recommendations available</div>';
+    
+    if (data.global && data.global.length > 0) {
+        const lastAcc = data.global[data.global.length - 1].accuracy;
+        
+        let recs = [];
+        if (lastAcc < 0.8) {
+            recs.push('Consider increasing training rounds');
+            recs.push('Review hyperparameter settings');
+        } else if (lastAcc < 0.9) {
+            recs.push('Fine-tune model parameters');
+            recs.push('Consider ensemble methods');
+        } else {
+            recs.push('Excellent performance achieved');
+            recs.push('Consider model deployment');
+        }
+        
+        recommendations = recs.map(rec => 
+            `<div class="stat-item"><i class="fas fa-lightbulb me-2"></i>${rec}</div>`
+        ).join('');
+    }
+    
+    container.innerHTML = recommendations;
+}
+
 function loadData() {
     showLoading('Loading metrics data...');
     
@@ -805,6 +1813,9 @@ function loadData() {
             
             // Update performance tables
             updatePerformanceTables(data);
+            
+            // Update advanced features
+            updateRealTimeData();
         })
         .catch(error => {
             console.error('Error loading metrics data:', error);

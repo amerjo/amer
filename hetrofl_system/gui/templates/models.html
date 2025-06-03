@@ -104,25 +104,124 @@
                         </div>
                         <div class="col-md-6">
                             <h6>Federated Learning Flow</h6>
-                            <div id="federated-flow" class="border rounded p-3 bg-light">
-                                <div class="text-center">
-                                    <div class="mb-3">
-                                        <i class="fas fa-laptop fa-2x text-primary"></i>
-                                        <p class="small">Local Models</p>
+                            <div id="federated-flow" class="federated-flow-container">
+                                <svg class="federated-flow-svg" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Background -->
+                                    <defs>
+                                        <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.1" />
+                                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.1" />
+                                        </linearGradient>
+                                        <filter id="glow">
+                                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                            <feMerge> 
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- Local Models -->
+                                    <g class="local-models-group">
+                                        <!-- XGBoost -->
+                                        <circle cx="100" cy="80" r="25" class="model-node xgboost-node" />
+                                        <text x="100" y="85" text-anchor="middle" class="model-text">XGB</text>
+                                        <text x="100" y="115" text-anchor="middle" class="model-label">XGBoost</text>
+                                        
+                                        <!-- Random Forest -->
+                                        <circle cx="200" cy="80" r="25" class="model-node rf-node" />
+                                        <text x="200" y="85" text-anchor="middle" class="model-text">RF</text>
+                                        <text x="200" y="115" text-anchor="middle" class="model-label">Random Forest</text>
+                                        
+                                        <!-- CatBoost -->
+                                        <circle cx="300" cy="80" r="25" class="model-node catboost-node" />
+                                        <text x="300" y="85" text-anchor="middle" class="model-text">CB</text>
+                                        <text x="300" y="115" text-anchor="middle" class="model-label">CatBoost</text>
+                                    </g>
+                                    
+                                    <!-- Data Flow Paths -->
+                                    <g class="flow-paths">
+                                        <!-- From XGBoost to Knowledge Distillation -->
+                                        <path d="M 100 105 Q 150 150 200 200" class="flow-path" stroke="#3498db" />
+                                        <!-- From Random Forest to Knowledge Distillation -->
+                                        <path d="M 200 105 L 200 200" class="flow-path" stroke="#f39c12" />
+                                        <!-- From CatBoost to Knowledge Distillation -->
+                                        <path d="M 300 105 Q 250 150 200 200" class="flow-path" stroke="#2ecc71" />
+                                        
+                                        <!-- From Knowledge Distillation to Global Model -->
+                                        <path d="M 200 250 L 200 350" class="flow-path global-flow" stroke="#e74c3c" />
+                                    </g>
+                                    
+                                    <!-- Animated Particles -->
+                                    <g class="particles">
+                                        <!-- Particles from local models -->
+                                        <circle r="3" class="particle particle-1">
+                                            <animateMotion dur="3s" repeatCount="indefinite">
+                                                <mpath href="#path1"/>
+                                            </animateMotion>
+                                        </circle>
+                                        <circle r="3" class="particle particle-2">
+                                            <animateMotion dur="3s" repeatCount="indefinite" begin="1s">
+                                                <mpath href="#path2"/>
+                                            </animateMotion>
+                                        </circle>
+                                        <circle r="3" class="particle particle-3">
+                                            <animateMotion dur="3s" repeatCount="indefinite" begin="2s">
+                                                <mpath href="#path3"/>
+                                            </animateMotion>
+                                        </circle>
+                                        
+                                        <!-- Particles to global model -->
+                                        <circle r="4" class="particle global-particle">
+                                            <animateMotion dur="2s" repeatCount="indefinite">
+                                                <mpath href="#globalPath"/>
+                                            </animateMotion>
+                                        </circle>
+                                    </g>
+                                    
+                                    <!-- Hidden paths for animation -->
+                                    <defs>
+                                        <path id="path1" d="M 100 105 Q 150 150 200 200" />
+                                        <path id="path2" d="M 200 105 L 200 200" />
+                                        <path id="path3" d="M 300 105 Q 250 150 200 200" />
+                                        <path id="globalPath" d="M 200 250 L 200 350" />
+                                    </defs>
+                                    
+                                    <!-- Knowledge Distillation -->
+                                    <g class="knowledge-distillation">
+                                        <rect x="150" y="200" width="100" height="50" rx="25" class="kd-node" />
+                                        <text x="200" y="220" text-anchor="middle" class="kd-text">Knowledge</text>
+                                        <text x="200" y="235" text-anchor="middle" class="kd-text">Distillation</text>
+                                    </g>
+                                    
+                                    <!-- Global Model -->
+                                    <g class="global-model">
+                                        <circle cx="200" cy="380" r="35" class="global-node" />
+                                        <text x="200" y="385" text-anchor="middle" class="global-text">Global</text>
+                                        <text x="200" y="420" text-anchor="middle" class="global-label">MLP Model</text>
+                                    </g>
+                                    
+                                    <!-- Progress Indicators -->
+                                    <g class="progress-indicators">
+                                        <circle cx="50" cy="225" r="8" class="progress-dot" id="progress-1" />
+                                        <circle cx="350" cy="225" r="8" class="progress-dot" id="progress-2" />
+                                        <circle cx="200" cy="450" r="8" class="progress-dot" id="progress-3" />
+                                    </g>
+                                </svg>
+                                
+                                <!-- Flow Status -->
+                                <div class="flow-status">
+                                    <div class="status-item">
+                                        <span class="status-indicator" id="local-status"></span>
+                                        <span>Local Training</span>
                                     </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-arrow-down fa-lg text-secondary"></i>
+                                    <div class="status-item">
+                                        <span class="status-indicator" id="distillation-status"></span>
+                                        <span>Knowledge Distillation</span>
                                     </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-exchange-alt fa-2x text-warning"></i>
-                                        <p class="small">Knowledge Distillation</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-arrow-down fa-lg text-secondary"></i>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-globe fa-2x text-success"></i>
-                                        <p class="small">Global Model</p>
+                                    <div class="status-item">
+                                        <span class="status-indicator" id="global-status"></span>
+                                        <span>Global Aggregation</span>
                                     </div>
                                 </div>
                             </div>

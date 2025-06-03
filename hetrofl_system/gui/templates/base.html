@@ -16,6 +16,11 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <!-- Leaflet.js for Interactive Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
     
@@ -43,14 +48,28 @@
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .navbar-brand:hover {
+            color: rgba(255,255,255,0.9) !important;
         }
 
         .nav-link {
             transition: all 0.3s ease;
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
         }
 
         .nav-link:hover {
             background-color: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            color: white !important;
+        }
+
+        .nav-link.active {
+            color: white !important;
+            background-color: rgba(255,255,255,0.15);
             border-radius: 5px;
         }
 
@@ -267,6 +286,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('metrics') }}">
                             <i class="fas fa-chart-bar me-1"></i>Metrics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('help') }}">
+                            <i class="fas fa-question-circle me-1"></i>Help
                         </a>
                     </li>
                 </ul>

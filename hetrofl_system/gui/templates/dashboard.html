@@ -501,67 +501,41 @@
         </div>
     </div>
     
-    <!-- Training Controls -->
+    <!-- Interactive Model Location Map -->
     <div class="col-lg-4">
-        <div class="card plot-card training-controls-card">
+        <div class="card plot-card map-card">
             <div class="plot-header">
                 <h5 class="plot-title">
-                    <i class="fas fa-play"></i>
-                    Training Controls
+                    <i class="fas fa-map-marked-alt"></i>
+                    Model Locations
                 </h5>
                 <div class="plot-controls">
-                    <button class="plot-btn" onclick="resetTrainingSettings()">
-                        <i class="fas fa-undo"></i>
-                        Reset
+                    <button class="plot-btn" onclick="resetMapView()" title="Reset Map View">
+                        <i class="fas fa-home"></i>
+                    </button>
+                    <button class="plot-btn" onclick="toggleMapFullscreen()" title="Fullscreen">
+                        <i class="fas fa-expand"></i>
                     </button>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="control-group">
-                    <label for="sample-size" class="form-label fw-bold">
-                        <i class="fas fa-database me-2"></i>Sample Size
-                    </label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="sample-size" value="50000" min="1000" max="1000000">
-                        <span class="input-group-text">samples</span>
+            <div class="card-body p-0">
+                <div id="model-map" class="model-location-map"></div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-marker xgboost-marker"></div>
+                        <span>XGBoost - Irbid</span>
+                        <span class="model-status" id="xgboost-status">Ready</span>
                     </div>
-                    <small class="text-muted">Number of data samples for training</small>
-                </div>
-
-                <div class="control-group">
-                    <label for="max-rounds-input" class="form-label fw-bold">
-                        <i class="fas fa-repeat me-2"></i>Max Rounds
-                    </label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="max-rounds-input" value="50" min="1" max="1000">
-                        <span class="input-group-text">rounds</span>
+                    <div class="legend-item">
+                        <div class="legend-marker random-forest-marker"></div>
+                        <span>Random Forest - Zarqa</span>
+                        <span class="model-status" id="random-forest-status">Ready</span>
                     </div>
-                    <small class="text-muted">Maximum federated learning rounds</small>
-                </div>
-                
-                <div class="control-group">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-chart-line me-2"></i>Training Progress
-                    </label>
-                    <div class="enhanced-progress mb-2">
-                        <div class="enhanced-progress-bar" id="training-progress" style="width: 0%"></div>
+                    <div class="legend-item">
+                        <div class="legend-marker catboost-marker"></div>
+                        <span>CatBoost - Amman</span>
+                        <span class="model-status" id="catboost-status">Ready</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted" id="progress-text">Ready to start</small>
-                        <span class="status-badge status-ready" id="training-status-badge">
-                            <i class="fas fa-circle"></i>
-                            Ready
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="d-grid gap-3">
-                    <button class="btn btn-success btn-lg" id="start-training-btn" onclick="startTraining()">
-                        <i class="fas fa-play me-2"></i>Start Training
-                    </button>
-                    <button class="btn btn-danger btn-lg" id="stop-training-btn" onclick="stopTraining()" disabled>
-                        <i class="fas fa-stop me-2"></i>Stop Training
-                    </button>
                 </div>
             </div>
         </div>
@@ -712,8 +686,8 @@
         }, 100);
     }
     
-    // Load plot data for specific tab
-    function loadPlotForTab(tabId) {
+    // Load plot data for specific tab with enhanced error handling and retry logic
+    function loadPlotForTab(tabId, retryCount = 0) {
         const plotType = tabId.replace('-tab', '');
         const chartId = `${plotType}-chart`;
         const loadingId = `${plotType}-loading`;
@@ -742,25 +716,63 @@
                 break;
             default:
                 showPlotState(plotType, 'error');
+                showToast(`Unknown plot type: ${plotType}`, 'error');
                 return;
         }
         
-        fetch(apiEndpoint)
-            .then(response => response.json())
+        // Add timeout to fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
+        fetch(apiEndpoint, { 
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
+                    console.warn(`API returned error for ${plotType}:`, data.error);
                     showPlotState(plotType, 'error');
                     showToast(`Error loading ${plotType} plot: ${data.error}`, 'error');
                 } else {
                     showPlotState(plotType, 'chart');
                     renderPlotData(plotType, data);
-                    showToast(`${plotType.charAt(0).toUpperCase() + plotType.slice(1)} plot loaded successfully`, 'success', 3000);
+                    console.log(`Successfully loaded ${plotType} plot`);
+                    if (retryCount > 0) {
+                        showToast(`${plotType.charAt(0).toUpperCase() + plotType.slice(1)} plot loaded successfully after retry`, 'success', 3000);
+                    }
                 }
             })
             .catch(error => {
+                clearTimeout(timeoutId);
                 console.error(`Error loading ${plotType} plot:`, error);
-                showPlotState(plotType, 'error');
-                showToast(`Network error loading ${plotType} plot`, 'error');
+                
+                // Implement retry logic for network errors
+                if (retryCount < 2 && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+                    console.log(`Retrying ${plotType} plot load (attempt ${retryCount + 1})`);
+                    setTimeout(() => {
+                        loadPlotForTab(tabId, retryCount + 1);
+                    }, 2000 * (retryCount + 1)); // Exponential backoff
+                    showToast(`Retrying ${plotType} plot load...`, 'info', 2000);
+                } else {
+                    showPlotState(plotType, 'error');
+                    let errorMessage = 'Network error loading plot';
+                    if (error.name === 'AbortError') {
+                        errorMessage = 'Request timeout - please try again';
+                    } else if (error.message.includes('HTTP')) {
+                        errorMessage = `Server error: ${error.message}`;
+                    }
+                    showToast(`${errorMessage} (${plotType})`, 'error');
+                }
             });
     }
     
@@ -1221,25 +1233,63 @@
         }
     }
     
-    // Load models data with enhanced error handling
-    function loadModelsData() {
+    // Load models data with enhanced error handling and retry logic
+    function loadModelsData(retryCount = 0) {
         showPlotState('models', 'loading');
         
-        fetch('/api/models/info')
-            .then(response => response.json())
+        // Add timeout to fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        fetch('/api/models/info', {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (!data.error) {
                     updateModelsCards(data);
                     showPlotState('models', 'chart');
+                    console.log('Successfully loaded models data');
+                    if (retryCount > 0) {
+                        showToast('Models data loaded successfully after retry', 'success', 3000);
+                    }
                 } else {
+                    console.warn('API returned error for models:', data.error);
                     showPlotState('models', 'error');
                     showToast(`Error loading models: ${data.error}`, 'error');
                 }
             })
             .catch(error => {
+                clearTimeout(timeoutId);
                 console.error('Error loading models info:', error);
-                showPlotState('models', 'error');
-                showToast('Network error loading models', 'error');
+                
+                // Implement retry logic for network errors
+                if (retryCount < 2 && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+                    console.log(`Retrying models data load (attempt ${retryCount + 1})`);
+                    setTimeout(() => {
+                        loadModelsData(retryCount + 1);
+                    }, 3000 * (retryCount + 1)); // Exponential backoff
+                    showToast('Retrying models data load...', 'info', 2000);
+                } else {
+                    showPlotState('models', 'error');
+                    let errorMessage = 'Network error loading models';
+                    if (error.name === 'AbortError') {
+                        errorMessage = 'Request timeout - please try again';
+                    } else if (error.message.includes('HTTP')) {
+                        errorMessage = `Server error: ${error.message}`;
+                    }
+                    showToast(errorMessage, 'error');
+                }
             });
     }
     
