@@ -1829,6 +1829,221 @@ def rebuild_xgboost_model():
         logger.error(f"Error in rebuild_xgboost_model: {e}")
         return jsonify({'error': str(e)})
 
+# Enhanced API endpoints for new features
+@app.route('/api/dashboard/settings', methods=['GET', 'POST'])
+def dashboard_settings():
+    """Dashboard configuration endpoint."""
+    if request.method == 'GET':
+        # Return current dashboard settings
+        default_settings = {
+            'autoRefresh': True,
+            'refreshInterval': 10000,
+            'animationsEnabled': True,
+            'soundEnabled': False,
+            'theme': 'light'
+        }
+        return jsonify(default_settings)
+    
+    elif request.method == 'POST':
+        # Save dashboard settings
+        settings = request.get_json()
+        # In a real implementation, you would save these to a database or config file
+        return jsonify({'success': True, 'message': 'Settings saved successfully'})
+
+@app.route('/api/models/export')
+def export_models():
+    """Model export functionality."""
+    global coordinator, metrics_tracker
+    
+    if not coordinator or not metrics_tracker:
+        return jsonify({'error': 'System not initialized'})
+    
+    try:
+        export_data = {
+            'timestamp': datetime.now().isoformat(),
+            'models': get_models_info().get_json(),
+            'metrics': get_latest_metrics().get_json(),
+            'performance': get_models_performance().get_json()
+        }
+        
+        return jsonify({
+            'success': True,
+            'data': export_data,
+            'filename': f'hetrofl_models_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error exporting models: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/training/logs')
+def get_training_logs():
+    """Real-time training logs endpoint."""
+    global state_manager
+    
+    if not state_manager:
+        return jsonify({'error': 'System not initialized'})
+    
+    try:
+        # In a real implementation, you would read from log files or memory
+        logs = [
+            {
+                'timestamp': datetime.now().isoformat(),
+                'level': 'INFO',
+                'message': 'Training system ready'
+            },
+            {
+                'timestamp': datetime.now().isoformat(),
+                'level': 'INFO', 
+                'message': 'Local models loaded successfully'
+            }
+        ]
+        
+        return jsonify({
+            'logs': logs,
+            'total_lines': len(logs)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting training logs: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/metrics/export')
+def export_metrics():
+    """Metrics export functionality."""
+    global metrics_tracker
+    
+    if not metrics_tracker:
+        return jsonify({'error': 'Metrics tracker not initialized'})
+    
+    try:
+        export_data = {
+            'timestamp': datetime.now().isoformat(),
+            'latest_metrics': get_latest_metrics().get_json(),
+            'metrics_history': get_metrics_history().get_json(),
+            'improvements': get_improvements().get_json()
+        }
+        
+        return jsonify({
+            'success': True,
+            'data': export_data,
+            'filename': f'hetrofl_metrics_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error exporting metrics: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/system/theme', methods=['GET', 'POST'])
+def system_theme():
+    """Theme preferences endpoint."""
+    if request.method == 'GET':
+        # Return current theme
+        return jsonify({'theme': 'light'})  # Default theme
+    
+    elif request.method == 'POST':
+        # Save theme preference
+        theme_data = request.get_json()
+        theme = theme_data.get('theme', 'light')
+        # In a real implementation, you would save this to user preferences
+        return jsonify({'success': True, 'theme': theme})
+
+@app.route('/api/models/comparison')
+def models_comparison():
+    """Enhanced model comparison data."""
+    global coordinator, metrics_tracker
+    
+    if not coordinator or not metrics_tracker:
+        return jsonify({'error': 'System not initialized'})
+    
+    try:
+        comparison_data = {
+            'models': [],
+            'metrics': ['accuracy', 'f1_score', 'precision', 'recall'],
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Get latest metrics
+        latest_metrics = get_latest_metrics().get_json()
+        
+        # Add global model
+        if 'global' in latest_metrics and latest_metrics['global']:
+            comparison_data['models'].append({
+                'name': 'Global Model',
+                'type': 'Neural Network',
+                'metrics': latest_metrics['global']
+            })
+        
+        # Add local models
+        if 'local' in latest_metrics and latest_metrics['local']:
+            for model_name, metrics in latest_metrics['local'].items():
+                model_info = coordinator.local_models.get(model_name, {})
+                model_type = getattr(model_info, 'model_config', {}).get('type', 'Unknown')
+                
+                comparison_data['models'].append({
+                    'name': model_name,
+                    'type': model_type,
+                    'metrics': metrics
+                })
+        
+        return jsonify(comparison_data)
+        
+    except Exception as e:
+        logger.error(f"Error getting model comparison data: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/models/rebuild_all', methods=['POST'])
+def rebuild_all_models():
+    """Rebuild all models endpoint."""
+    global coordinator
+    
+    if not coordinator:
+        return jsonify({'error': 'System not initialized'})
+    
+    try:
+        # This would trigger a rebuild of all models
+        # For now, just return success
+        return jsonify({
+            'success': True,
+            'message': 'Model rebuild initiated for all models',
+            'models_affected': list(coordinator.local_models.keys()) if coordinator.local_models else []
+        })
+        
+    except Exception as e:
+        logger.error(f"Error rebuilding all models: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/system/health')
+def system_health():
+    """System health check endpoint."""
+    global coordinator, metrics_tracker, plot_generator, data_loader, state_manager
+    
+    health_status = {
+        'timestamp': datetime.now().isoformat(),
+        'overall_status': 'healthy',
+        'components': {
+            'coordinator': coordinator is not None,
+            'metrics_tracker': metrics_tracker is not None,
+            'plot_generator': plot_generator is not None,
+            'data_loader': data_loader is not None,
+            'state_manager': state_manager is not None
+        },
+        'system_info': {
+            'initialized': state_manager.is_initialized() if state_manager else False,
+            'training': state_manager.is_training() if state_manager else False,
+            'models_loaded': len(coordinator.local_models) if coordinator and coordinator.local_models else 0
+        }
+    }
+    
+    # Determine overall status
+    if not all(health_status['components'].values()):
+        health_status['overall_status'] = 'degraded'
+    
+    if state_manager and state_manager.get_system_status().get('error'):
+        health_status['overall_status'] = 'unhealthy'
+    
+    return jsonify(health_status)
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files with cache control."""

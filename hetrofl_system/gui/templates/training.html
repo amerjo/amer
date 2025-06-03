@@ -3,34 +3,183 @@
 {% block title %}Training Control - HETROFL System{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/custom.css">
+<style>
+    /* Enhanced Training Page Styles */
+    .training-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .training-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .training-title {
+        position: relative;
+        z-index: 1;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .training-subtitle {
+        position: relative;
+        z-index: 1;
+        opacity: 0.9;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    .training-actions {
+        position: relative;
+        z-index: 1;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .training-action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .training-action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .training-action-btn.start {
+        background: rgba(46, 204, 113, 0.3);
+        border-color: rgba(46, 204, 113, 0.5);
+    }
+    
+    .training-action-btn.stop {
+        background: rgba(231, 76, 60, 0.3);
+        border-color: rgba(231, 76, 60, 0.5);
+    }
+    
+    .training-action-btn.refresh {
+        background: rgba(52, 152, 219, 0.3);
+        border-color: rgba(52, 152, 219, 0.5);
+    }
+    
+    .training-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .training-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    .enhanced-progress {
+        height: 20px;
+        border-radius: 15px;
+        background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 1rem 0;
+    }
+    
+    .enhanced-progress-bar {
+        height: 100%;
+        border-radius: 15px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        position: relative;
+        overflow: hidden;
+        transition: width 0.6s ease;
+    }
+    
+    .enhanced-progress-bar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+        background-size: 30px 30px;
+        animation: shimmer 2s linear infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -30px 0; }
+        100% { background-position: 30px 0; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Alert Container -->
 <div id="alert-container"></div>
 
-<!-- Page Header -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="display-6 fw-bold">
-                    <i class="fas fa-cogs me-3 text-primary"></i>
-                    Training Control Center
-                </h1>
-                <p class="text-muted">Manage federated learning training sessions</p>
-            </div>
-            <div>
-                <button class="btn btn-success btn-lg" id="start-training-btn" onclick="startTraining()">
-                    <i class="fas fa-play me-2"></i>Start Training
-                </button>
-                <button class="btn btn-danger btn-lg ms-2" id="stop-training-btn" onclick="stopTraining()" disabled>
-                    <i class="fas fa-stop me-2"></i>Stop Training
-                </button>
-                <button class="btn btn-info btn-lg ms-2" onclick="refreshTrainingStatus()">
-                    <i class="fas fa-sync-alt me-2"></i>Refresh
-                </button>
-            </div>
+<!-- Enhanced Training Header -->
+<div class="training-header text-center">
+    <div class="container">
+        <h1 class="training-title">
+            <i class="fas fa-cogs me-3"></i>
+            Training Control Center
+        </h1>
+        <p class="training-subtitle">
+            Manage federated learning training sessions with advanced controls
+        </p>
+        
+        <div class="training-actions">
+            <button class="training-action-btn start" id="start-training-btn" onclick="startTraining()" title="Start Training (Ctrl+S)">
+                <i class="fas fa-play"></i>
+                <span>Start Training</span>
+            </button>
+            <button class="training-action-btn stop" id="stop-training-btn" onclick="stopTraining()" disabled title="Stop Training (Ctrl+X)">
+                <i class="fas fa-stop"></i>
+                <span>Stop Training</span>
+            </button>
+            <button class="training-action-btn refresh" onclick="refreshTrainingStatus()" title="Refresh Status (Ctrl+R)">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+            </button>
         </div>
     </div>
 </div>
@@ -38,8 +187,8 @@
 <!-- Training Status Overview -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card fade-in">
-            <div class="card-header">
+        <div class="training-card fade-in">
+            <div class="card-header bg-gradient-primary text-white">
                 <h4 class="mb-0">
                     <i class="fas fa-info-circle me-2"></i>
                     Training Status Overview
@@ -59,9 +208,21 @@
                         <div class="metric-value" id="elapsed-time">00:00:00</div>
                         <div class="metric-label">Elapsed Time</div>
                     </div>
-                    <div class="metric-card danger">
+                    <div class="metric-card secondary">
                         <div class="metric-value" id="active-models">0</div>
                         <div class="metric-label">Active Models</div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Progress Bar -->
+                <div class="mt-4">
+                    <h6>Training Progress</h6>
+                    <div class="enhanced-progress">
+                        <div class="enhanced-progress-bar" id="training-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted" id="progress-text">Ready to start training</small>
+                        <small class="text-muted" id="progress-percentage">0%</small>
                     </div>
                 </div>
             </div>
@@ -69,12 +230,11 @@
     </div>
 </div>
 
-<!-- Main Training Control -->
-<div class="row">
-    <!-- Training Configuration -->
+<!-- Training Configuration -->
+<div class="row mb-4">
     <div class="col-lg-6">
-        <div class="card fade-in">
-            <div class="card-header">
+        <div class="training-card fade-in">
+            <div class="card-header bg-gradient-success text-white">
                 <h4 class="mb-0">
                     <i class="fas fa-sliders-h me-2"></i>
                     Training Configuration
@@ -83,7 +243,9 @@
             <div class="card-body">
                 <form id="training-config-form">
                     <div class="mb-4">
-                        <label for="sample-size" class="form-label fw-bold">Sample Size</label>
+                        <label for="sample-size" class="form-label fw-bold">
+                            <i class="fas fa-database me-2"></i>Sample Size
+                        </label>
                         <div class="input-group">
                             <input type="number" class="form-control" id="sample-size" value="50000" min="1000" max="1000000">
                             <span class="input-group-text">samples</span>
@@ -92,7 +254,9 @@
                     </div>
                     
                     <div class="mb-4">
-                        <label for="max-rounds" class="form-label fw-bold">Maximum Rounds</label>
+                        <label for="max-rounds" class="form-label fw-bold">
+                            <i class="fas fa-repeat me-2"></i>Maximum Rounds
+                        </label>
                         <div class="input-group">
                             <input type="number" class="form-control" id="max-rounds" value="50" min="1" max="1000">
                             <span class="input-group-text">rounds</span>
@@ -101,100 +265,101 @@
                     </div>
                     
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Training Options</label>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="auto-save" checked>
-                            <label class="form-check-label" for="auto-save">
-                                Auto-save models after training
-                            </label>
+                        <label for="learning-rate" class="form-label fw-bold">
+                            <i class="fas fa-chart-line me-2"></i>Learning Rate
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="learning-rate" value="0.001" min="0.0001" max="1" step="0.0001">
+                            <span class="input-group-text">rate</span>
                         </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="comprehensive-eval" checked>
-                            <label class="form-check-label" for="comprehensive-eval">
-                                Run comprehensive evaluation
-                            </label>
-                        </div>
+                        <div class="form-text">Learning rate for model training</div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
     
-    <!-- Training Progress -->
     <div class="col-lg-6">
-        <div class="card fade-in">
-            <div class="card-header">
+        <div class="training-card fade-in">
+            <div class="card-header bg-gradient-info text-white">
                 <h4 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Training Progress
+                    <i class="fas fa-terminal me-2"></i>
+                    Training Logs
                 </h4>
             </div>
             <div class="card-body">
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold">Overall Progress</span>
-                        <span id="progress-percentage">0%</span>
-                    </div>
-                    <div class="progress mb-2" style="height: 15px;">
-                        <div class="progress-bar" id="training-progress" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <small class="text-muted" id="progress-text">Ready to start training</small>
+                <div id="training-logs" style="height: 300px; overflow-y: auto; background: #f8f9fa; border-radius: 10px; padding: 15px; font-family: monospace; font-size: 0.85rem;">
+                    <div class="text-muted">Training logs will appear here...</div>
                 </div>
-                
-                <div class="mb-4">
-                    <h6 class="fw-bold mb-3">Model Status</h6>
-                    <div id="model-status-list">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>XGBoost</span>
-                            <span class="badge bg-secondary">Ready</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>Random Forest</span>
-                            <span class="badge bg-secondary">Ready</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>CatBoost</span>
-                            <span class="badge bg-secondary">Ready</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>Global MLP</span>
-                            <span class="badge bg-secondary">Ready</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <h6 class="fw-bold mb-3">Quick Actions</h6>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="runComprehensiveEvaluation()">
-                            <i class="fas fa-chart-bar me-2"></i>Run Evaluation
-                        </button>
-                        <button class="btn btn-outline-success" onclick="saveAllModels()">
-                            <i class="fas fa-save me-2"></i>Save All Models
-                        </button>
-                        <button class="btn btn-outline-info" onclick="exportResults()">
-                            <i class="fas fa-download me-2"></i>Export Results
-                        </button>
-                    </div>
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary btn-sm" onclick="clearLogs()">
+                        <i class="fas fa-trash me-1"></i>Clear Logs
+                    </button>
+                    <button class="btn btn-outline-success btn-sm ms-2" onclick="exportLogs()">
+                        <i class="fas fa-download me-1"></i>Export Logs
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Training Log -->
-<div class="row mt-4">
+<!-- Training History and Analytics -->
+<div class="row">
     <div class="col-12">
-        <div class="card fade-in">
-            <div class="card-header">
+        <div class="training-card fade-in">
+            <div class="card-header bg-gradient-warning text-white">
                 <h4 class="mb-0">
-                    <i class="fas fa-terminal me-2"></i>
-                    Training Log
+                    <i class="fas fa-history me-2"></i>
+                    Training History & Analytics
                 </h4>
             </div>
             <div class="card-body">
-                <div id="training-log" style="height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 10px; font-family: 'Courier New', monospace;">
-                    <div class="text-muted">Training log will appear here...</div>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div id="training-history-chart" style="height: 400px;"></div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h6 class="fw-bold mb-3">Recent Training Sessions</h6>
+                        <div id="training-sessions-list">
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                <div>
+                                    <div class="fw-bold">Session #1</div>
+                                    <small class="text-muted">50 rounds, 2h 15m</small>
+                                </div>
+                                <span class="badge bg-success">Completed</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                <div>
+                                    <div class="fw-bold">Session #2</div>
+                                    <small class="text-muted">30 rounds, 1h 45m</small>
+                                </div>
+                                <span class="badge bg-success">Completed</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                                <div>
+                                    <div class="fw-bold">Session #3</div>
+                                    <small class="text-muted">25 rounds, 1h 20m</small>
+                                </div>
+                                <span class="badge bg-warning">Stopped</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="fw-bold mb-3">Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="runComprehensiveEvaluation()">
+                                    <i class="fas fa-chart-bar me-2"></i>Run Evaluation
+                                </button>
+                                <button class="btn btn-outline-success" onclick="saveAllModels()">
+                                    <i class="fas fa-save me-2"></i>Save All Models
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportResults()">
+                                    <i class="fas fa-download me-2"></i>Export Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,9 +384,94 @@
 
     function initializeTrainingPage() {
         // Add fade-in animation to elements
-        document.querySelectorAll('.card').forEach(el => {
+        document.querySelectorAll('.card, .training-card').forEach(el => {
             el.classList.add('fade-in');
         });
+        
+        // Initialize training history chart
+        initializeTrainingHistoryChart();
+        
+        // Setup keyboard shortcuts
+        setupKeyboardShortcuts();
+    }
+    
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S: Start training
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (!document.getElementById('start-training-btn').disabled) {
+                    startTraining();
+                }
+            }
+            // Ctrl+X: Stop training
+            if (e.ctrlKey && e.key === 'x') {
+                e.preventDefault();
+                if (!document.getElementById('stop-training-btn').disabled) {
+                    stopTraining();
+                }
+            }
+            // Ctrl+R: Refresh status
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshTrainingStatus();
+            }
+        });
+    }
+    
+    function initializeTrainingHistoryChart() {
+        const chartContainer = document.getElementById('training-history-chart');
+        if (!chartContainer) return;
+        
+        // Sample training history data
+        const sampleData = {
+            rounds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            accuracy: [0.75, 0.78, 0.82, 0.85, 0.87, 0.89, 0.91, 0.92, 0.93, 0.94],
+            loss: [0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28]
+        };
+        
+        const traces = [
+            {
+                x: sampleData.rounds,
+                y: sampleData.accuracy,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Accuracy',
+                line: { color: '#2ecc71', width: 3 },
+                marker: { size: 8 },
+                yaxis: 'y'
+            },
+            {
+                x: sampleData.rounds,
+                y: sampleData.loss,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Loss',
+                line: { color: '#e74c3c', width: 3 },
+                marker: { size: 8 },
+                yaxis: 'y2'
+            }
+        ];
+        
+        const layout = {
+            title: 'Training Progress Over Time',
+            xaxis: { title: 'Training Round' },
+            yaxis: {
+                title: 'Accuracy',
+                side: 'left',
+                range: [0, 1]
+            },
+            yaxis2: {
+                title: 'Loss',
+                side: 'right',
+                overlaying: 'y',
+                range: [0, 1]
+            },
+            legend: { orientation: 'h', y: -0.2 },
+            margin: { t: 50, b: 80, l: 60, r: 60 }
+        };
+        
+        Plotly.newPlot(chartContainer, traces, layout, { responsive: true });
     }
 
     function setupWebSocket() {
@@ -507,6 +757,31 @@
     function exportResults() {
         addLogEntry('Exporting results...', 'info');
         showAlert('Results export functionality will be implemented.', 'info');
+    }
+    
+    function clearLogs() {
+        const logContainer = document.getElementById('training-logs');
+        if (logContainer) {
+            logContainer.innerHTML = '<div class="text-muted">Training logs cleared...</div>';
+        }
+        addLogEntry('Training logs cleared', 'info');
+    }
+    
+    function exportLogs() {
+        const logContainer = document.getElementById('training-logs');
+        if (logContainer) {
+            const logs = logContainer.innerText;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `training_logs_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addLogEntry('Training logs exported', 'success');
+        }
     }
 
     function showAlert(message, type) {

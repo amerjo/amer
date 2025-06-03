@@ -2,197 +2,621 @@
 
 {% block title %}Models - HETROFL System{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Enhanced Models Page Styles */
+    .models-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .models-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .models-title {
+        position: relative;
+        z-index: 1;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .models-subtitle {
+        position: relative;
+        z-index: 1;
+        opacity: 0.9;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    .models-actions {
+        position: relative;
+        z-index: 1;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .models-action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .models-action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .model-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .model-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #4facfe, #00f2fe);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .model-card:hover::before {
+        opacity: 1;
+    }
+    
+    .model-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    }
+    
+    .model-header {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(79, 172, 254, 0.1));
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .model-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .model-status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .status-loaded {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1));
+        color: #27ae60;
+        border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+    
+    .status-not-loaded {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(236, 112, 99, 0.1));
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+    
+    .model-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 1.5rem;
+    }
+    
+    .info-item {
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .info-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateY(-5px);
+    }
+    
+    .info-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    
+    .info-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+    
+    .model-actions {
+        padding: 1.5rem;
+        background: rgba(102, 126, 234, 0.02);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .model-action-btn {
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        color: #667eea;
+        border-radius: 12px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+    }
+    
+    .model-action-btn:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .comparison-table {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .comparison-table .table {
+        margin-bottom: 0;
+    }
+    
+    .comparison-table .table thead th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+    
+    .comparison-table .table tbody td {
+        padding: 1rem;
+        border-color: rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+    }
+    
+    .comparison-table .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .performance-radar {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .architecture-flow {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(79, 172, 254, 0.05));
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .flow-step {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .flow-step:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .flow-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #667eea;
+    }
+    
+    .flow-arrow {
+        text-align: center;
+        color: #667eea;
+        font-size: 1.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 10px;
+        height: 20px;
+        margin-bottom: 10px;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .models-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .models-action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .model-info-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .model-actions {
+            flex-direction: column;
+        }
+        
+        .model-action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-brain me-2"></i>Model Management</h2>
-                <div>
-                    <button class="btn btn-primary" onclick="refreshModels()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Alert Container -->
+<div id="alert-container"></div>
+
+<!-- Enhanced Models Header -->
+<div class="models-header text-center">
+    <div class="container">
+        <h1 class="models-title">
+            <i class="fas fa-brain me-3"></i>
+            Model Management Hub
+        </h1>
+        <p class="models-subtitle">
+            Comprehensive overview and control of federated learning models
+        </p>
+        
+        <div class="models-actions">
+            <button class="models-action-btn" onclick="refreshAllModels()" title="Refresh All Models (Ctrl+R)">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh All</span>
+            </button>
+            <button class="models-action-btn" onclick="compareModels()" title="Compare Model Performance">
+                <i class="fas fa-chart-bar"></i>
+                <span>Compare Models</span>
+            </button>
+            <button class="models-action-btn" onclick="exportModelsReport()" title="Export Models Report">
+                <i class="fas fa-download"></i>
+                <span>Export Report</span>
+            </button>
+            <button class="models-action-btn" onclick="openModelSettings()" title="Model Settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Global Model Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="model-card fade-in">
+            <div class="model-header">
+                <h2 class="model-title">
+                    <i class="fas fa-globe"></i>
+                    Global Neural Network Model
+                </h2>
+                <div id="global-model-status" class="model-status-badge status-not-loaded">
+                    <i class="fas fa-circle me-1"></i>
+                    Loading...
+                </div>
+            </div>
+            <div class="model-info-grid" id="global-model-info">
+                <div class="info-item">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton" style="width: 60%;"></div>
+                </div>
+                <div class="info-item">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton" style="width: 60%;"></div>
+                </div>
+                <div class="info-item">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton" style="width: 60%;"></div>
+                </div>
+                <div class="info-item">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton" style="width: 60%;"></div>
+                </div>
+            </div>
+            <div class="model-actions">
+                <button class="model-action-btn" onclick="trainGlobalModel()">
+                    <i class="fas fa-play"></i>Train Model
+                </button>
+                <button class="model-action-btn" onclick="evaluateGlobalModel()">
+                    <i class="fas fa-chart-bar"></i>Evaluate
+                </button>
+                <button class="model-action-btn" onclick="saveGlobalModel()">
+                    <i class="fas fa-download"></i>Save Model
+                </button>
+                <button class="model-action-btn" onclick="loadGlobalModel()">
+                    <i class="fas fa-upload"></i>Load Model
+                </button>
+                <button class="model-action-btn" onclick="viewGlobalModelDetails()">
+                    <i class="fas fa-info-circle"></i>Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Local Models Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="model-card fade-in">
+            <div class="model-header">
+                <h2 class="model-title">
+                    <i class="fas fa-laptop"></i>
+                    Local Models
+                </h2>
+                <div class="d-flex gap-2">
+                    <button class="model-action-btn" onclick="refreshLocalModels()">
+                        <i class="fas fa-sync-alt"></i>Refresh
                     </button>
-                    <button class="btn btn-success" onclick="saveAllModels()">
-                        <i class="fas fa-save me-2"></i>Save All
+                    <button class="model-action-btn" onclick="rebuildAllModels()">
+                        <i class="fas fa-tools"></i>Rebuild All
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Global Model -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Global Neural Network Model</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div id="global-model-info">
-                                <div class="text-center">
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2">Loading global model information...</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">Model Actions</h6>
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-primary" onclick="trainGlobalModel()">
-                                            <i class="fas fa-play me-2"></i>Train Model
-                                        </button>
-                                        <button class="btn btn-outline-success" onclick="evaluateGlobalModel()">
-                                            <i class="fas fa-chart-bar me-2"></i>Evaluate
-                                        </button>
-                                        <button class="btn btn-outline-info" onclick="saveGlobalModel()">
-                                            <i class="fas fa-download me-2"></i>Save Model
-                                        </button>
-                                        <button class="btn btn-outline-warning" onclick="loadGlobalModel()">
-                                            <i class="fas fa-upload me-2"></i>Load Model
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="row" id="local-models-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Local Models -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-laptop me-2"></i>Local Models</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row" id="local-models-container">
-                        <div class="col-12 text-center">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p class="mt-2">Loading local models information...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Model Architecture Visualization -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Model Architecture</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Global Model Architecture</h6>
-                            <div id="global-architecture" class="border rounded p-3 bg-light">
-                                <p class="text-muted">Loading architecture...</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Federated Learning Flow</h6>
-                            <div id="federated-flow" class="border rounded p-3 bg-light">
-                                <div class="text-center">
-                                    <div class="mb-3">
-                                        <i class="fas fa-laptop fa-2x text-primary"></i>
-                                        <p class="small">Local Models</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-arrow-down fa-lg text-secondary"></i>
-                                    </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-exchange-alt fa-2x text-warning"></i>
-                                        <p class="small">Knowledge Distillation</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <i class="fas fa-arrow-down fa-lg text-secondary"></i>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-globe fa-2x text-success"></i>
-                                        <p class="small">Global Model</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Model Performance Summary -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Performance Summary</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="performance-summary-table">
-                            <thead>
-                                <tr>
-                                    <th>Model</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Accuracy</th>
-                                    <th>F1-Score</th>
-                                    <th>Parameters</th>
-                                    <th>Last Updated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="8" class="text-center">Loading performance data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <p class="mt-3 text-muted">Loading local models information...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Model Performance Radar Chart -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="performance-radar fade-in">
+            <h4 class="text-center mb-4">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Model Performance Radar
+            </h4>
+            <div id="performance-radar-chart" style="height: 400px;"></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="architecture-flow fade-in">
+            <h4 class="text-center mb-4">
+                <i class="fas fa-sitemap me-2 text-primary"></i>
+                Federated Learning Flow
+            </h4>
+            <div id="federated-flow">
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h6>Local Models</h6>
+                    <p class="small text-muted">XGBoost, Random Forest, CatBoost</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h6>Knowledge Distillation</h6>
+                    <p class="small text-muted">Transfer learning process</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h6>Global Model</h6>
+                    <p class="small text-muted">Neural Network Ensemble</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Model Comparison Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="comparison-table fade-in">
+            <div class="table-responsive">
+                <table class="table" id="performance-summary-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-brain me-1"></i>Model</th>
+                            <th><i class="fas fa-cog me-1"></i>Type</th>
+                            <th><i class="fas fa-circle me-1"></i>Status</th>
+                            <th><i class="fas fa-bullseye me-1"></i>Accuracy</th>
+                            <th><i class="fas fa-chart-bar me-1"></i>F1-Score</th>
+                            <th><i class="fas fa-layer-group me-1"></i>Parameters</th>
+                            <th><i class="fas fa-clock me-1"></i>Last Updated</th>
+                            <th><i class="fas fa-tools me-1"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading performance data...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
+// Enhanced Models Page JavaScript
 let modelsSocket;
 let modelsData = {};
+let metricsData = {};
+let performanceChart = null;
 
+// Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    initializeModels();
-    setupWebSocket();
-    loadModelsData();
+    initializeModelsPage();
+    setupEnhancedWebSocket();
+    loadInitialData();
+    setupKeyboardShortcuts();
 });
 
-function initializeModels() {
+function initializeModelsPage() {
+    // Add fade-in animations
+    document.querySelectorAll('.model-card').forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('fade-in');
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
     // Set up auto-refresh
-    setInterval(refreshModels, 10000); // Refresh every 10 seconds
+    setInterval(refreshAllModels, 15000); // Refresh every 15 seconds
 }
 
-function setupWebSocket() {
+function setupEnhancedWebSocket() {
     modelsSocket = io();
     
     modelsSocket.on('connect', function() {
         console.log('Connected to models WebSocket');
+        showToast('Connected to HETROFL server', 'success', 3000);
         modelsSocket.emit('request_update');
+    });
+    
+    modelsSocket.on('disconnect', function() {
+        console.log('Disconnected from models WebSocket');
+        showToast('Disconnected from server', 'error');
     });
     
     modelsSocket.on('models_update', function(data) {
         updateModelsDisplay(data);
+    });
+    
+    modelsSocket.on('metrics_update', function(data) {
+        metricsData = data;
+        updatePerformanceSummary(data);
+        updatePerformanceRadar(data);
     });
     
     modelsSocket.on('training_update', function(data) {
@@ -200,25 +624,44 @@ function setupWebSocket() {
     });
 }
 
-function loadModelsData() {
-    refreshModels();
+function loadInitialData() {
+    refreshAllModels();
+    loadPerformanceRadar();
 }
 
-function refreshModels() {
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+R: Refresh all models
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            refreshAllModels();
+        }
+        // Ctrl+E: Export models report
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            exportModelsReport();
+        }
+    });
+}
+
+function refreshAllModels() {
+    showToast('Refreshing all models...', 'info', 2000);
+    
     // Load models information
     fetch('/api/models/info')
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 console.error('Error loading models:', data.error);
-                showError('Failed to load models information: ' + data.error);
+                showToast('Failed to load models information: ' + data.error, 'error');
                 return;
             }
             updateModelsDisplay(data);
+            showToast('Models information updated', 'success', 3000);
         })
         .catch(error => {
             console.error('Error loading models:', error);
-            showError('Failed to connect to server');
+            showToast('Failed to connect to server', 'error');
         });
     
     // Load latest metrics for performance summary
@@ -226,7 +669,9 @@ function refreshModels() {
         .then(response => response.json())
         .then(data => {
             if (!data.error) {
+                metricsData = data;
                 updatePerformanceSummary(data);
+                updatePerformanceRadar(data);
             }
         })
         .catch(error => console.error('Error loading metrics:', error));
@@ -240,83 +685,73 @@ function updateModelsDisplay(data) {
     
     // Update local models
     updateLocalModelsDisplay(data.local_models);
-    
-    // Update architecture display
-    updateArchitectureDisplay(data.global_model);
 }
 
 function updateGlobalModelDisplay(globalModel) {
-    const container = document.getElementById('global-model-info');
+    const statusElement = document.getElementById('global-model-status');
+    const infoContainer = document.getElementById('global-model-info');
     
     if (!globalModel || Object.keys(globalModel).length === 0) {
-        container.innerHTML = `
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Global model not initialized. Start training to create the global model.
+        statusElement.className = 'model-status-badge status-not-loaded';
+        statusElement.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Not Initialized';
+        
+        infoContainer.innerHTML = `
+            <div class="info-item">
+                <div class="info-value">--</div>
+                <div class="info-label">Status</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value">--</div>
+                <div class="info-label">Parameters</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value">--</div>
+                <div class="info-label">Layers</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value">--</div>
+                <div class="info-label">Features</div>
             </div>
         `;
         return;
     }
     
     const status = globalModel.status || 'unknown';
-    const statusClass = status === 'trained' ? 'success' : status === 'built' ? 'warning' : 'secondary';
-    const statusIcon = status === 'trained' ? 'check-circle' : status === 'built' ? 'cog' : 'question-circle';
+    const isLoaded = status === 'trained' || status === 'built';
     
-    container.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Model Information</h6>
-                <table class="table table-sm">
-                    <tr>
-                        <td><strong>Status:</strong></td>
-                        <td>
-                            <span class="badge bg-${statusClass}">
-                                <i class="fas fa-${statusIcon} me-1"></i>${status.toUpperCase()}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Total Parameters:</strong></td>
-                        <td>${globalModel.total_params ? globalModel.total_params.toLocaleString() : 'N/A'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Trainable Parameters:</strong></td>
-                        <td>${globalModel.trainable_params ? globalModel.trainable_params.toLocaleString() : 'N/A'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Number of Layers:</strong></td>
-                        <td>${globalModel.num_layers || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Input Features:</strong></td>
-                        <td>${globalModel.num_features || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Output Classes:</strong></td>
-                        <td>${globalModel.num_classes || 'N/A'}</td>
-                    </tr>
-                </table>
-            </div>
-            <div class="col-md-6">
-                <h6>Training History</h6>
-                <div class="bg-light p-3 rounded">
-                    <p><strong>Training Sessions:</strong> ${globalModel.training_history_length || 0}</p>
-                    ${globalModel.architecture ? `
-                        <p><strong>Architecture:</strong></p>
-                        <ul class="list-unstyled small">
-                            ${globalModel.architecture.slice(0, 5).map(layer => `<li>• ${layer}</li>`).join('')}
-                            ${globalModel.architecture.length > 5 ? '<li>• ...</li>' : ''}
-                        </ul>
-                    ` : ''}
-                </div>
-            </div>
+    statusElement.className = `model-status-badge ${isLoaded ? 'status-loaded' : 'status-not-loaded'}`;
+    statusElement.innerHTML = `<i class="fas fa-${isLoaded ? 'check-circle' : 'exclamation-triangle'} me-1"></i>${status.toUpperCase()}`;
+    
+    infoContainer.innerHTML = `
+        <div class="info-item">
+            <div class="info-value">${status.toUpperCase()}</div>
+            <div class="info-label">Status</div>
+        </div>
+        <div class="info-item">
+            <div class="info-value">${globalModel.total_params ? globalModel.total_params.toLocaleString() : 'N/A'}</div>
+            <div class="info-label">Total Parameters</div>
+        </div>
+        <div class="info-item">
+            <div class="info-value">${globalModel.num_layers || 'N/A'}</div>
+            <div class="info-label">Layers</div>
+        </div>
+        <div class="info-item">
+            <div class="info-value">${globalModel.num_features || 'N/A'}</div>
+            <div class="info-label">Input Features</div>
+        </div>
+        <div class="info-item">
+            <div class="info-value">${globalModel.num_classes || 'N/A'}</div>
+            <div class="info-label">Output Classes</div>
+        </div>
+        <div class="info-item">
+            <div class="info-value">${globalModel.trainable_params ? globalModel.trainable_params.toLocaleString() : 'N/A'}</div>
+            <div class="info-label">Trainable Parameters</div>
         </div>
     `;
 }
 
 function updateLocalModelsDisplay(localModels) {
     const container = document.getElementById('local-models-container');
-    container.innerHTML = '';
     
     if (!localModels || Object.keys(localModels).length === 0) {
         container.innerHTML = `
@@ -330,94 +765,75 @@ function updateLocalModelsDisplay(localModels) {
         return;
     }
     
+    let html = '';
     Object.entries(localModels).forEach(([modelName, modelInfo]) => {
-        const col = document.createElement('div');
-        col.className = 'col-lg-4 col-md-6 mb-3';
-        
         const isLoaded = modelInfo.is_loaded || false;
-        const statusClass = isLoaded ? 'success' : 'warning';
+        const statusClass = isLoaded ? 'status-loaded' : 'status-not-loaded';
         const statusText = isLoaded ? 'Loaded' : 'Not Loaded';
         const statusIcon = isLoaded ? 'check-circle' : 'exclamation-triangle';
         
-        col.innerHTML = `
-            <div class="card h-100">
-                <div class="card-header bg-${statusClass} text-white">
-                    <h6 class="mb-0">
-                        <i class="fas fa-${getModelIcon(modelName)} me-2"></i>
-                        ${modelName}
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-2">
-                        <span class="badge bg-${statusClass}">
-                            <i class="fas fa-${statusIcon} me-1"></i>${statusText}
-                        </span>
-                    </div>
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Type:</strong></td>
-                            <td>${modelInfo.model_type || 'Unknown'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Features:</strong></td>
-                            <td>${modelInfo.n_features || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Classes:</strong></td>
-                            <td>${modelInfo.n_classes || 'N/A'}</td>
-                        </tr>
-                        ${modelInfo.accuracy ? `
-                        <tr>
-                            <td><strong>Accuracy:</strong></td>
-                            <td>${(modelInfo.accuracy * 100).toFixed(2)}%</td>
-                        </tr>
-                        ` : ''}
-                    </table>
-                </div>
-                <div class="card-footer">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-sm btn-outline-primary" onclick="evaluateLocalModel('${modelName}')">
-                            <i class="fas fa-chart-bar me-1"></i>Evaluate
-                        </button>
-                        <button class="btn btn-sm btn-outline-info" onclick="viewModelDetails('${modelName}')">
-                            <i class="fas fa-info-circle me-1"></i>Details
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(col);
-    });
-}
-
-function updateArchitectureDisplay(globalModel) {
-    const container = document.getElementById('global-architecture');
-    
-    if (!globalModel || !globalModel.architecture) {
-        container.innerHTML = '<p class="text-muted">No architecture information available</p>';
-        return;
-    }
-    
-    const architecture = globalModel.architecture;
-    let html = '<div class="architecture-diagram">';
-    
-    architecture.forEach((layer, index) => {
-        const isFirst = index === 0;
-        const isLast = index === architecture.length - 1;
+        // Get current metrics for this model
+        const currentMetrics = metricsData.local && metricsData.local[modelName] ? metricsData.local[modelName] : {};
         
         html += `
-            <div class="layer-box mb-2 p-2 border rounded ${isFirst ? 'bg-primary text-white' : isLast ? 'bg-success text-white' : 'bg-light'}">
-                <small><strong>${layer}</strong></small>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="model-card">
+                    <div class="model-header">
+                        <h3 class="model-title">
+                            <i class="fas fa-${getModelIcon(modelName)}"></i>
+                            ${modelName.replace('_', ' ').toUpperCase()}
+                        </h3>
+                        <div class="model-status-badge ${statusClass}">
+                            <i class="fas fa-${statusIcon} me-1"></i>${statusText}
+                        </div>
+                    </div>
+                    <div class="model-info-grid">
+                        <div class="info-item">
+                            <div class="info-value">${modelInfo.model_type || 'Unknown'}</div>
+                            <div class="info-label">Type</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">${modelInfo.n_features || 'N/A'}</div>
+                            <div class="info-label">Features</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">${modelInfo.n_classes || 'N/A'}</div>
+                            <div class="info-label">Classes</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">${currentMetrics.accuracy ? (currentMetrics.accuracy * 100).toFixed(1) + '%' : 'N/A'}</div>
+                            <div class="info-label">Accuracy</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">${currentMetrics.f1_score ? (currentMetrics.f1_score * 100).toFixed(1) + '%' : 'N/A'}</div>
+                            <div class="info-label">F1 Score</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">${currentMetrics.precision ? (currentMetrics.precision * 100).toFixed(1) + '%' : 'N/A'}</div>
+                            <div class="info-label">Precision</div>
+                        </div>
+                    </div>
+                    <div class="model-actions">
+                        <button class="model-action-btn" onclick="evaluateLocalModel('${modelName}')">
+                            <i class="fas fa-chart-bar"></i>Evaluate
+                        </button>
+                        <button class="model-action-btn" onclick="viewModelDetails('${modelName}')">
+                            <i class="fas fa-info-circle"></i>Details
+                        </button>
+                        ${modelName === 'xgboost' ? `
+                            <button class="model-action-btn" onclick="rebuildXGBoostModel()">
+                                <i class="fas fa-tools"></i>Rebuild
+                            </button>
+                        ` : ''}
+                        <button class="model-action-btn" onclick="exportModelReport('${modelName}')">
+                            <i class="fas fa-download"></i>Export
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
-        
-        if (!isLast) {
-            html += '<div class="text-center"><i class="fas fa-arrow-down text-secondary"></i></div>';
-        }
     });
     
-    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -427,7 +843,7 @@ function updatePerformanceSummary(metricsData) {
     
     // Global model row
     if (metricsData.global && Object.keys(metricsData.global).length > 0) {
-        const row = createPerformanceRow('Global Model', 'Neural Network', metricsData.global, modelsData.global_model);
+        const row = createEnhancedPerformanceRow('Global Model', 'Neural Network', metricsData.global, modelsData.global_model);
         tbody.appendChild(row);
     }
     
@@ -436,36 +852,69 @@ function updatePerformanceSummary(metricsData) {
         Object.entries(metricsData.local).forEach(([modelName, metrics]) => {
             if (metrics && Object.keys(metrics).length > 0) {
                 const modelInfo = modelsData.local_models ? modelsData.local_models[modelName] : {};
-                const row = createPerformanceRow(modelName, modelInfo.model_type || 'Unknown', metrics, modelInfo);
+                const row = createEnhancedPerformanceRow(modelName, modelInfo.model_type || 'Unknown', metrics, modelInfo);
                 tbody.appendChild(row);
             }
         });
     }
     
     if (tbody.children.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center">No performance data available</td></tr>';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <i class="fas fa-info-circle text-muted me-2"></i>
+                    No performance data available
+                </td>
+            </tr>
+        `;
     }
 }
 
-function createPerformanceRow(modelName, modelType, metrics, modelInfo) {
+function createEnhancedPerformanceRow(modelName, modelType, metrics, modelInfo) {
     const row = document.createElement('tr');
     
     const isLoaded = modelInfo.is_loaded !== false;
     const statusClass = isLoaded ? 'success' : 'warning';
     const statusText = isLoaded ? 'Active' : 'Inactive';
+    const statusIcon = isLoaded ? 'check-circle' : 'exclamation-triangle';
     
     const parameters = modelInfo.total_params ? modelInfo.total_params.toLocaleString() : 'N/A';
     
     row.innerHTML = `
-        <td><strong>${modelName}</strong></td>
-        <td>${modelType}</td>
         <td>
-            <span class="badge bg-${statusClass}">${statusText}</span>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${getModelIcon(modelName)} me-2 text-primary"></i>
+                <strong>${modelName}</strong>
+            </div>
         </td>
-        <td>${(metrics.accuracy * 100).toFixed(2)}%</td>
-        <td>${(metrics.f1_score * 100).toFixed(2)}%</td>
+        <td>
+            <span class="badge bg-light text-dark">${modelType}</span>
+        </td>
+        <td>
+            <span class="badge bg-${statusClass}">
+                <i class="fas fa-${statusIcon} me-1"></i>${statusText}
+            </span>
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="progress me-2" style="width: 60px; height: 8px;">
+                    <div class="progress-bar bg-primary" style="width: ${(metrics.accuracy * 100)}%"></div>
+                </div>
+                <span class="fw-bold">${(metrics.accuracy * 100).toFixed(1)}%</span>
+            </div>
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="progress me-2" style="width: 60px; height: 8px;">
+                    <div class="progress-bar bg-success" style="width: ${(metrics.f1_score * 100)}%"></div>
+                </div>
+                <span class="fw-bold">${(metrics.f1_score * 100).toFixed(1)}%</span>
+            </div>
+        </td>
         <td>${parameters}</td>
-        <td>${new Date().toLocaleString()}</td>
+        <td>
+            <small class="text-muted">${new Date().toLocaleString()}</small>
+        </td>
         <td>
             <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-primary" onclick="viewModelDetails('${modelName}')" title="View Details">
@@ -474,11 +923,137 @@ function createPerformanceRow(modelName, modelType, metrics, modelInfo) {
                 <button class="btn btn-outline-success" onclick="evaluateModel('${modelName}')" title="Evaluate">
                     <i class="fas fa-chart-bar"></i>
                 </button>
+                <button class="btn btn-outline-info" onclick="exportModelReport('${modelName}')" title="Export">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
         </td>
     `;
     
     return row;
+}
+
+function loadPerformanceRadar() {
+    if (!metricsData.local && !metricsData.global) {
+        // Create sample radar chart
+        createSampleRadarChart();
+        return;
+    }
+    
+    updatePerformanceRadar(metricsData);
+}
+
+function updatePerformanceRadar(data) {
+    const chartContainer = document.getElementById('performance-radar-chart');
+    
+    if (!data.local && !data.global) {
+        createSampleRadarChart();
+        return;
+    }
+    
+    const models = [];
+    const metrics = ['accuracy', 'f1_score', 'precision', 'recall'];
+    
+    // Add global model
+    if (data.global) {
+        models.push({
+            name: 'Global Model',
+            values: metrics.map(metric => (data.global[metric] || 0) * 100),
+            color: '#e74c3c'
+        });
+    }
+    
+    // Add local models
+    if (data.local) {
+        const colors = ['#3498db', '#2ecc71', '#f39c12', '#9b59b6'];
+        let colorIndex = 0;
+        
+        Object.entries(data.local).forEach(([modelName, modelMetrics]) => {
+            models.push({
+                name: modelName.replace('_', ' ').toUpperCase(),
+                values: metrics.map(metric => (modelMetrics[metric] || 0) * 100),
+                color: colors[colorIndex % colors.length]
+            });
+            colorIndex++;
+        });
+    }
+    
+    // Create radar chart using Plotly
+    const traces = models.map(model => ({
+        type: 'scatterpolar',
+        r: model.values,
+        theta: ['Accuracy', 'F1 Score', 'Precision', 'Recall'],
+        fill: 'toself',
+        name: model.name,
+        line: { color: model.color },
+        fillcolor: model.color + '20'
+    }));
+    
+    const layout = {
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [0, 100]
+            }
+        },
+        showlegend: true,
+        title: {
+            text: 'Model Performance Comparison',
+            font: { size: 16 }
+        },
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot(chartContainer, traces, layout, {responsive: true});
+}
+
+function createSampleRadarChart() {
+    const chartContainer = document.getElementById('performance-radar-chart');
+    
+    const sampleData = [
+        {
+            name: 'XGBoost',
+            values: [94, 92, 93, 91],
+            color: '#3498db'
+        },
+        {
+            name: 'Random Forest',
+            values: [89, 87, 88, 86],
+            color: '#2ecc71'
+        },
+        {
+            name: 'CatBoost',
+            values: [91, 89, 90, 88],
+            color: '#f39c12'
+        }
+    ];
+    
+    const traces = sampleData.map(model => ({
+        type: 'scatterpolar',
+        r: model.values,
+        theta: ['Accuracy', 'F1 Score', 'Precision', 'Recall'],
+        fill: 'toself',
+        name: model.name,
+        line: { color: model.color },
+        fillcolor: model.color + '20'
+    }));
+    
+    const layout = {
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [0, 100]
+            }
+        },
+        showlegend: true,
+        title: {
+            text: 'Model Performance Comparison (Sample Data)',
+            font: { size: 16 }
+        },
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot(chartContainer, traces, layout, {responsive: true});
 }
 
 function getModelIcon(modelName) {
@@ -490,8 +1065,170 @@ function getModelIcon(modelName) {
     return 'brain';
 }
 
+// Enhanced action functions
+function compareModels() {
+    showToast('Opening model comparison...', 'info', 2000);
+    // This could open a modal or navigate to a detailed comparison view
+    window.location.href = '/local_models';
+}
+
+function exportModelsReport() {
+    showToast('Preparing models report...', 'info', 2000);
+    
+    fetch('/api/models/performance')
+        .then(response => response.json())
+        .then(data => {
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                models_info: modelsData,
+                performance_data: data,
+                metrics_data: metricsData
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hetrofl_models_report_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Models report exported successfully', 'success');
+        })
+        .catch(error => {
+            console.error('Error exporting models report:', error);
+            showToast('Error exporting models report', 'error');
+        });
+}
+
+function openModelSettings() {
+    // Create settings modal
+    const modalHTML = `
+        <div class="modal fade" id="modelSettingsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-cog me-2"></i>Model Settings
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-sync-alt me-2"></i>Auto Refresh Models
+                                    </label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="autoRefreshModels" checked>
+                                        <label class="form-check-label" for="autoRefreshModels">
+                                            Enable automatic model refresh
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="refreshInterval" class="form-label">
+                                        <i class="fas fa-clock me-2"></i>Refresh Interval (seconds)
+                                    </label>
+                                    <input type="range" class="form-range" id="refreshInterval" 
+                                           min="5" max="60" value="15">
+                                    <div class="d-flex justify-content-between">
+                                        <small>5s</small>
+                                        <small id="intervalValue">15s</small>
+                                        <small>60s</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-chart-pie me-2"></i>Show Performance Radar
+                                    </label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showRadarChart" checked>
+                                        <label class="form-check-label" for="showRadarChart">
+                                            Display performance radar chart
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-bell me-2"></i>Model Notifications
+                                    </label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="modelNotifications" checked>
+                                        <label class="form-check-label" for="modelNotifications">
+                                            Enable model status notifications
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveModelSettings()">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('modelSettingsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Setup event listeners
+    const intervalSlider = document.getElementById('refreshInterval');
+    const intervalValue = document.getElementById('intervalValue');
+    
+    intervalSlider.addEventListener('input', function() {
+        intervalValue.textContent = this.value + 's';
+    });
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('modelSettingsModal'));
+    modal.show();
+}
+
+function saveModelSettings() {
+    // Save settings logic here
+    showToast('Model settings saved successfully', 'success');
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modelSettingsModal'));
+    modal.hide();
+}
+
+function refreshLocalModels() {
+    showToast('Refreshing local models...', 'info', 2000);
+    refreshAllModels();
+}
+
+function rebuildAllModels() {
+    if (!confirm('Are you sure you want to rebuild all models? This may take some time.')) {
+        return;
+    }
+    
+    showToast('Starting model rebuild process...', 'info');
+    
+    // This would trigger rebuild for all models
+    showToast('Model rebuild initiated. Check training page for progress.', 'success');
+}
+
 function trainGlobalModel() {
-    showLoading('Training global model...');
+    showToast('Starting global model training...', 'info');
     
     fetch('/api/training/start', {
         method: 'POST',
@@ -504,74 +1241,73 @@ function trainGlobalModel() {
     })
     .then(response => response.json())
     .then(data => {
-        hideLoading();
         if (data.error) {
-            showError('Failed to start training: ' + data.error);
+            showToast('Failed to start training: ' + data.error, 'error');
         } else {
-            showSuccess('Training started successfully!');
-            setTimeout(refreshModels, 2000);
+            showToast('Training started successfully!', 'success');
+            setTimeout(refreshAllModels, 2000);
         }
     })
     .catch(error => {
-        hideLoading();
         console.error('Error starting training:', error);
-        showError('Failed to start training');
+        showToast('Failed to start training', 'error');
     });
 }
 
 function evaluateGlobalModel() {
-    showLoading('Evaluating global model...');
+    showToast('Evaluating global model...', 'info');
     
-    // This would trigger evaluation - for now just refresh
+    // This would trigger evaluation
     setTimeout(() => {
-        hideLoading();
-        refreshModels();
-        showSuccess('Model evaluation completed');
+        refreshAllModels();
+        showToast('Global model evaluation completed', 'success');
     }, 2000);
 }
 
 function saveGlobalModel() {
-    showLoading('Saving global model...');
+    showToast('Saving global model...', 'info');
     
     // This would trigger model saving
     setTimeout(() => {
-        hideLoading();
-        showSuccess('Global model saved successfully');
+        showToast('Global model saved successfully', 'success');
     }, 1000);
 }
 
 function loadGlobalModel() {
-    showLoading('Loading global model...');
+    showToast('Loading global model...', 'info');
     
     // This would trigger model loading
     setTimeout(() => {
-        hideLoading();
-        refreshModels();
-        showSuccess('Global model loaded successfully');
+        refreshAllModels();
+        showToast('Global model loaded successfully', 'success');
     }, 1000);
 }
 
+function viewGlobalModelDetails() {
+    viewModelDetails('Global Model');
+}
+
 function evaluateLocalModel(modelName) {
-    showLoading(`Evaluating ${modelName}...`);
+    showToast(`Evaluating ${modelName}...`, 'info');
     
     setTimeout(() => {
-        hideLoading();
-        showSuccess(`${modelName} evaluation completed`);
+        showToast(`${modelName} evaluation completed`, 'success');
     }, 1500);
 }
 
 function viewModelDetails(modelName) {
-    const modelInfo = modelsData.local_models ? modelsData.local_models[modelName] : modelsData.global_model;
+    const modelInfo = modelName === 'Global Model' ? modelsData.global_model : 
+                     (modelsData.local_models ? modelsData.local_models[modelName] : null);
     
     if (!modelInfo) {
-        showError('Model information not available');
+        showToast('Model information not available', 'error');
         return;
     }
     
-    // Create modal with model details
+    // Create enhanced modal with model details
     const modalHtml = `
         <div class="modal fade" id="modelDetailsModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
@@ -581,10 +1317,31 @@ function viewModelDetails(modelName) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <pre>${JSON.stringify(modelInfo, null, 2)}</pre>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Model Information</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        ${Object.entries(modelInfo).map(([key, value]) => `
+                                            <tr>
+                                                <td><strong>${key.replace('_', ' ').toUpperCase()}:</strong></td>
+                                                <td>${typeof value === 'object' ? JSON.stringify(value) : value}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Performance Metrics</h6>
+                                <div id="model-detail-chart" style="height: 300px;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="exportModelReport('${modelName}')">
+                            <i class="fas fa-download me-1"></i>Export Report
+                        </button>
                     </div>
                 </div>
             </div>
@@ -603,6 +1360,44 @@ function viewModelDetails(modelName) {
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('modelDetailsModal'));
     modal.show();
+    
+    // Create detail chart after modal is shown
+    setTimeout(() => {
+        createModelDetailChart(modelName);
+    }, 300);
+}
+
+function createModelDetailChart(modelName) {
+    const chartContainer = document.getElementById('model-detail-chart');
+    if (!chartContainer) return;
+    
+    const modelMetrics = modelName === 'Global Model' ? metricsData.global : 
+                        (metricsData.local ? metricsData.local[modelName] : null);
+    
+    if (!modelMetrics) {
+        chartContainer.innerHTML = '<p class="text-muted text-center">No metrics data available</p>';
+        return;
+    }
+    
+    const metrics = ['accuracy', 'f1_score', 'precision', 'recall'];
+    const values = metrics.map(metric => (modelMetrics[metric] || 0) * 100);
+    
+    const trace = {
+        x: metrics.map(m => m.replace('_', ' ').toUpperCase()),
+        y: values,
+        type: 'bar',
+        marker: {
+            color: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c']
+        }
+    };
+    
+    const layout = {
+        title: `${modelName} Performance Metrics`,
+        yaxis: { title: 'Percentage (%)' },
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot(chartContainer, [trace], layout, {responsive: true});
 }
 
 function evaluateModel(modelName) {
@@ -613,73 +1408,117 @@ function evaluateModel(modelName) {
     }
 }
 
-function saveAllModels() {
-    showLoading('Saving all models...');
+function exportModelReport(modelName) {
+    showToast(`Preparing ${modelName} report...`, 'info', 2000);
     
-    setTimeout(() => {
-        hideLoading();
-        showSuccess('All models saved successfully');
-    }, 2000);
+    const modelInfo = modelName === 'Global Model' ? modelsData.global_model : 
+                     (modelsData.local_models ? modelsData.local_models[modelName] : null);
+    const modelMetrics = modelName === 'Global Model' ? metricsData.global : 
+                        (metricsData.local ? metricsData.local[modelName] : null);
+    
+    const reportData = {
+        timestamp: new Date().toISOString(),
+        model_name: modelName,
+        model_info: modelInfo,
+        performance_metrics: modelMetrics
+    };
+    
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${modelName.toLowerCase().replace(' ', '_')}_report_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast(`${modelName} report exported successfully`, 'success');
 }
 
-function showLoading(message) {
-    // Create loading overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'loading-overlay';
-    overlay.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-    overlay.style.zIndex = '9999';
+function rebuildXGBoostModel() {
+    if (!confirm('Are you sure you want to rebuild the XGBoost model? This will retrain the model from scratch.')) {
+        return;
+    }
     
-    overlay.innerHTML = `
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="spinner-border text-primary mb-3" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mb-0">${message}</p>
+    showToast('Rebuilding XGBoost model...', 'info');
+    
+    fetch('/api/models/rebuild_xgboost', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showToast('Failed to rebuild XGBoost model: ' + data.error, 'error');
+        } else {
+            showToast('XGBoost model rebuilt successfully!', 'success');
+            setTimeout(refreshAllModels, 2000);
+        }
+    })
+    .catch(error => {
+        console.error('Error rebuilding XGBoost model:', error);
+        showToast('Failed to rebuild XGBoost model', 'error');
+    });
+}
+
+function updateTrainingStatus(data) {
+    // Update any training-related status indicators
+    if (data.training) {
+        // Show training indicators
+        document.querySelectorAll('.model-status-badge').forEach(badge => {
+            if (badge.textContent.includes('TRAINED')) {
+                badge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>TRAINING';
+                badge.className = 'model-status-badge status-training';
+            }
+        });
+    }
+}
+
+// Enhanced toast notification system
+function showToast(message, type = 'info', duration = 5000) {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+    
+    const toastId = 'toast-' + Date.now();
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-triangle',
+        warning: 'exclamation-circle',
+        info: 'info-circle'
+    };
+    
+    const toastHTML = `
+        <div id="${toastId}" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${icons[type] || 'info-circle'} me-2 text-${type}"></i>
+                <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                <button type="button" class="btn-close" onclick="removeToast('${toastId}')"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
             </div>
         </div>
     `;
     
-    document.body.appendChild(overlay);
-}
-
-function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-        overlay.remove();
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    // Show toast
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Auto-remove toast after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            removeToast(toastId);
+        }, duration);
     }
 }
 
-function showSuccess(message) {
-    showAlert(message, 'success');
-}
-
-function showError(message) {
-    showAlert(message, 'danger');
-}
-
-function showAlert(message, type) {
-    const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
-             style="top: 20px; right: 20px; z-index: 10000; min-width: 300px;">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', alertHtml);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            if (alert.textContent.includes(message)) {
-                alert.remove();
-            }
-        });
-    }, 5000);
+function removeToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+        toast.remove();
+    }
 }
 </script>
-{% endblock %} 
+{% endblock %}

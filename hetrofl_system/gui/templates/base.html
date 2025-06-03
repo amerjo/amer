@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,13 @@
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- Socket.IO -->
@@ -22,36 +25,79 @@
     <style>
         :root {
             --primary-color: #2c3e50;
+            --accent-color: #9b59b6;
             --secondary-color: #3498db;
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
             --dark-color: #34495e;
             --light-color: #ecf0f1;
+            --gradient-primary: linear-gradient(135deg, #2c3e50, #3498db);
+            --glassmorphism-bg: rgba(255, 255, 255, 0.25);
+            --glassmorphism-border: rgba(255, 255, 255, 0.18);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #1a252f;
+            --accent-color: #8e44ad;
+            --secondary-color: #2980b9;
+            --dark-color: #2c3e50;
+            --light-color: #34495e;
+            --glassmorphism-bg: rgba(0, 0, 0, 0.25);
+            --glassmorphism-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .nav-link {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             transition: all 0.3s ease;
         }
 
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+            color: #ecf0f1;
+        }
+
+        .navbar {
+            background: var(--glassmorphism-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glassmorphism-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: var(--gradient-primary);
+            backdrop-filter: blur(15px);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
         .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            border-radius: 5px;
+            background-color: rgba(255,255,255,0.15);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
         }
 
         .card {
@@ -74,16 +120,130 @@
         }
 
         .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
-        .status-online { background-color: var(--success-color); }
-        .status-offline { background-color: var(--danger-color); }
-        .status-training { background-color: var(--warning-color); }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-online .status-dot { 
+            background-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-offline .status-dot { 
+            background-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .status-training .status-dot { 
+            background-color: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            animation: pulse-training 2s infinite;
+        }
+
+        @keyframes pulse-training {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        .navbar-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-bell {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .notification-bell:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 25px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .profile-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: scale(1.1);
+        }
 
         .metric-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -230,49 +390,87 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-network-wired me-2"></i>
+                <i class="bi bi-diagram-3-fill"></i>
                 HETROFL System
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        <a class="nav-link" href="{{ url_for('index') }}" data-page="dashboard">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('models') }}">
-                            <i class="fas fa-brain me-1"></i>Models
+                        <a class="nav-link" href="{{ url_for('models') }}" data-page="models">
+                            <i class="bi bi-cpu me-1"></i>Models
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('local_models') }}">
-                            <i class="fas fa-laptop me-1"></i>Local Models
+                        <a class="nav-link" href="{{ url_for('local_models') }}" data-page="local_models">
+                            <i class="bi bi-laptop me-1"></i>Local Models
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('training') }}">
-                            <i class="fas fa-cogs me-1"></i>Training
+                        <a class="nav-link" href="{{ url_for('training') }}" data-page="training">
+                            <i class="bi bi-gear-fill me-1"></i>Training
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('metrics') }}">
-                            <i class="fas fa-chart-bar me-1"></i>Metrics
+                        <a class="nav-link" href="{{ url_for('metrics') }}" data-page="metrics">
+                            <i class="bi bi-graph-up me-1"></i>Metrics
                         </a>
                     </li>
                 </ul>
-                <div class="navbar-text">
-                    <span class="status-indicator status-online" id="status-indicator"></span>
-                    <span id="status-text">Online</span>
+                
+                <div class="navbar-nav-right">
+                    <!-- System Status -->
+                    <div class="status-indicator status-online" id="status-indicator">
+                        <div class="status-dot"></div>
+                        <span id="status-text">Online</span>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="dropdown">
+                        <div class="notification-bell" data-bs-toggle="dropdown" aria-expanded="false" role="button" aria-label="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end" id="notification-dropdown">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><span class="dropdown-item-text text-muted">No new notifications</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                        <i class="bi bi-sun-fill" id="theme-icon"></i>
+                    </button>
+                    
+                    <!-- Profile/Settings -->
+                    <div class="dropdown profile-dropdown">
+                        <div class="profile-btn" data-bs-toggle="dropdown" aria-expanded="false" role="button" aria-label="Profile menu">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Admin</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">System Settings</h6></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-download me-2"></i>Export Data</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-question-circle me-2"></i>Help</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>About</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -355,8 +553,9 @@
             if (status.error) {
                 statusIndicator.className = 'status-indicator status-offline';
                 statusText.textContent = 'Error: ' + status.error;
+                addNotification('System Error', status.error, 'error');
             } else if (status.training) {
-                statusIndicator.className = 'status-indicator status-training pulse';
+                statusIndicator.className = 'status-indicator status-training';
                 statusText.textContent = `Training (Round ${status.current_round}/${status.total_rounds})`;
             } else if (status.initialized) {
                 statusIndicator.className = 'status-indicator status-online';
@@ -364,6 +563,169 @@
             } else {
                 statusIndicator.className = 'status-indicator status-offline';
                 statusText.textContent = 'Initializing...';
+            }
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize theme from localStorage
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            html.setAttribute('data-theme', savedTheme);
+            themeIcon.className = savedTheme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+        }
+
+        // Navigation highlighting
+        function highlightActiveNavigation() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link[data-page]');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === currentPath || (currentPath === '/' && href.includes('index'))) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Notification system
+        let notificationCount = 0;
+        const notifications = [];
+
+        function addNotification(title, message, type = 'info') {
+            const notification = {
+                id: Date.now(),
+                title,
+                message,
+                type,
+                timestamp: new Date()
+            };
+            
+            notifications.unshift(notification);
+            notificationCount++;
+            
+            updateNotificationBadge();
+            updateNotificationDropdown();
+            
+            // Auto-remove after 5 minutes
+            setTimeout(() => {
+                removeNotification(notification.id);
+            }, 300000);
+        }
+
+        function removeNotification(id) {
+            const index = notifications.findIndex(n => n.id === id);
+            if (index > -1) {
+                notifications.splice(index, 1);
+                notificationCount = Math.max(0, notificationCount - 1);
+                updateNotificationBadge();
+                updateNotificationDropdown();
+            }
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notification-count');
+            if (notificationCount > 0) {
+                badge.textContent = notificationCount > 99 ? '99+' : notificationCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateNotificationDropdown() {
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            if (notifications.length === 0) {
+                dropdown.innerHTML = `
+                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                    <li><span class="dropdown-item-text text-muted">No new notifications</span></li>
+                `;
+            } else {
+                let html = '<li><h6 class="dropdown-header">Notifications</h6></li>';
+                
+                notifications.slice(0, 5).forEach(notification => {
+                    const timeAgo = getTimeAgo(notification.timestamp);
+                    const iconClass = getNotificationIcon(notification.type);
+                    
+                    html += `
+                        <li>
+                            <div class="dropdown-item notification-item" onclick="removeNotification(${notification.id})">
+                                <div class="d-flex align-items-start">
+                                    <i class="${iconClass} me-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold">${notification.title}</div>
+                                        <div class="text-muted small">${notification.message}</div>
+                                        <div class="text-muted small">${timeAgo}</div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="event.stopPropagation(); removeNotification(${notification.id})">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                });
+                
+                if (notifications.length > 5) {
+                    html += `<li><hr class="dropdown-divider"></li>`;
+                    html += `<li><a class="dropdown-item text-center" href="#">View all notifications</a></li>`;
+                }
+                
+                dropdown.innerHTML = html;
+            }
+        }
+
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'success': return 'bi bi-check-circle-fill text-success';
+                case 'error': return 'bi bi-exclamation-triangle-fill text-danger';
+                case 'warning': return 'bi bi-exclamation-circle-fill text-warning';
+                default: return 'bi bi-info-circle-fill text-info';
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Navbar scroll effect
+        function handleNavbarScroll() {
+            const navbar = document.getElementById('mainNavbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
         }
         
@@ -438,6 +800,15 @@
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+            
+            // Highlight active navigation
+            highlightActiveNavigation();
+            
+            // Add scroll listener for navbar
+            window.addEventListener('scroll', handleNavbarScroll);
+            
             // Add fade-in animation to cards
             document.querySelectorAll('.card').forEach(card => {
                 card.classList.add('fade-in');
@@ -458,6 +829,11 @@
             if (typeof loadInitialData === 'function') {
                 setTimeout(loadInitialData, 200);
             }
+            
+            // Add welcome notification
+            setTimeout(() => {
+                addNotification('System Ready', 'HETROFL System has been initialized successfully', 'success');
+            }, 1000);
         });
     </script>
     
