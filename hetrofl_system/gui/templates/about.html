@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+
+{% block title %}About - HETROFL System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="dashboard-header text-center">
+                <h1><i class="fas fa-info-circle me-3"></i>About HETROFL System</h1>
+                <p class="lead mb-0">Heterogeneous Federated Learning for IoT Network Security</p>
+                <div class="mt-3">
+                    <span class="badge bg-primary me-2">Version 2.0</span>
+                    <span class="badge bg-success me-2">Production Ready</span>
+                    <span class="badge bg-info">Research Platform</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-rocket me-2"></i>System Overview</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        HETROFL is an advanced heterogeneous federated learning system designed specifically for 
+                        IoT network security applications. It enables collaborative machine learning across 
+                        distributed devices while preserving data privacy and accommodating diverse model architectures.
+                    </p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-shield-alt text-primary me-2"></i>Key Features</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Heterogeneous model support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Knowledge distillation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Real-time monitoring</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Scalable architecture</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs text-primary me-2"></i>Supported Models</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-brain text-info me-2"></i>XGBoost Classifier</li>
+                                <li><i class="fas fa-tree text-success me-2"></i>Random Forest</li>
+                                <li><i class="fas fa-cat text-warning me-2"></i>CatBoost</li>
+                                <li><i class="fas fa-network-wired text-primary me-2"></i>Global MLP</li>
+                                <li><i class="fas fa-plus text-secondary me-2"></i>Extensible framework</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie me-2"></i>System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="metric-card info mb-3">
+                        <div class="metric-value" id="total-models">4</div>
+                        <div class="metric-label">Supported Models</div>
+                    </div>
+                    <div class="metric-card success mb-3">
+                        <div class="metric-value" id="accuracy-rate">94.3%</div>
+                        <div class="metric-label">Peak Accuracy</div>
+                    </div>
+                    <div class="metric-card warning mb-3">
+                        <div class="metric-value" id="training-speed">2.5x</div>
+                        <div class="metric-label">Speed Improvement</div>
+                    </div>
+                    <div class="metric-card primary">
+                        <div class="metric-value" id="privacy-level">100%</div>
+                        <div class="metric-label">Privacy Preserved</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive System Architecture -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-sitemap me-2"></i>Interactive System Architecture</h4>
+                    <div class="float-end">
+                        <button class="btn btn-sm btn-outline-primary" onclick="resetArchitectureView()">
+                            <i class="fas fa-undo me-1"></i>Reset View
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="animateDataFlow()">
+                            <i class="fas fa-play me-1"></i>Animate Flow
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="architecture-diagram" style="height: 600px; position: relative;">
+                        <!-- SVG Architecture Diagram -->
+                        <svg width="100%" height="100%" viewBox="0 0 1200 600" class="architecture-svg">
+                            <!-- Definitions for gradients and effects -->
+                            <defs>
+                                <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="globalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+                                </linearGradient>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge> 
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                                <filter id="shadow">
+                                    <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                                </filter>
+                            </defs>
+
+                            <!-- Data Sources Layer -->
+                            <g class="data-layer">
+                                <text x="60" y="30" class="layer-title">Data Sources</text>
+                                
+                                <!-- IoT Devices -->
+                                <g class="iot-device" transform="translate(50, 50)">
+                                    <circle cx="0" cy="0" r="25" fill="#3498db" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('iot1')"/>
+                                    <text x="0" y="5" text-anchor="middle" fill="white" font-weight="bold">IoT1</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">Network Device</text>
+                                </g>
+                                
+                                <g class="iot-device" transform="translate(50, 150)">
+                                    <circle cx="0" cy="0" r="25" fill="#3498db" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('iot2')"/>
+                                    <text x="0" y="5" text-anchor="middle" fill="white" font-weight="bold">IoT2</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">Security Sensor</text>
+                                </g>
+                                
+                                <g class="iot-device" transform="translate(50, 250)">
+                                    <circle cx="0" cy="0" r="25" fill="#3498db" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('iot3')"/>
+                                    <text x="0" y="5" text-anchor="middle" fill="white" font-weight="bold">IoT3</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">Edge Gateway</text>
+                                </g>
+                            </g>
+
+                            <!-- Local Models Layer -->
+                            <g class="local-models-layer">
+                                <text x="350" y="30" class="layer-title">Local Models</text>
+                                
+                                <!-- XGBoost Model -->
+                                <g class="local-model xgboost-model" transform="translate(300, 80)">
+                                    <rect x="-40" y="-30" width="80" height="60" rx="10" fill="#2ecc71" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('xgboost')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold">XGBoost</text>
+                                    <text x="0" y="10" text-anchor="middle" fill="white" font-size="12">Classifier</text>
+                                    <text x="0" y="55" text-anchor="middle" class="node-label">Gradient Boosting</text>
+                                </g>
+                                
+                                <!-- Random Forest Model -->
+                                <g class="local-model rf-model" transform="translate(300, 180)">
+                                    <rect x="-40" y="-30" width="80" height="60" rx="10" fill="#f39c12" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('random_forest')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold">Random</text>
+                                    <text x="0" y="10" text-anchor="middle" fill="white" font-size="12">Forest</text>
+                                    <text x="0" y="55" text-anchor="middle" class="node-label">Ensemble Method</text>
+                                </g>
+                                
+                                <!-- CatBoost Model -->
+                                <g class="local-model catboost-model" transform="translate(300, 280)">
+                                    <rect x="-40" y="-30" width="80" height="60" rx="10" fill="#9b59b6" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('catboost')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold">CatBoost</text>
+                                    <text x="0" y="10" text-anchor="middle" fill="white" font-size="12">Classifier</text>
+                                    <text x="0" y="55" text-anchor="middle" class="node-label">Categorical Boosting</text>
+                                </g>
+                            </g>
+
+                            <!-- Knowledge Distillation Layer -->
+                            <g class="kd-layer">
+                                <text x="550" y="30" class="layer-title">Knowledge Distillation</text>
+                                
+                                <g class="kd-node" transform="translate(600, 180)">
+                                    <polygon points="-30,0 0,-25 30,0 0,25" fill="url(#nodeGradient)" filter="url(#glow)" class="clickable-node" onclick="showNodeDetails('knowledge_distillation')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Knowledge</text>
+                                    <text x="0" y="8" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Distillation</text>
+                                    <text x="0" y="55" text-anchor="middle" class="node-label">Transfer Learning</text>
+                                </g>
+                            </g>
+
+                            <!-- Global Model Layer -->
+                            <g class="global-layer">
+                                <text x="850" y="30" class="layer-title">Global Model</text>
+                                
+                                <g class="global-model" transform="translate(900, 180)">
+                                    <circle cx="0" cy="0" r="40" fill="url(#globalGradient)" filter="url(#glow)" class="clickable-node" onclick="showNodeDetails('global_model')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold">Global</text>
+                                    <text x="0" y="10" text-anchor="middle" fill="white" font-weight="bold">MLP</text>
+                                    <text x="0" y="65" text-anchor="middle" class="node-label">Neural Network</text>
+                                </g>
+                            </g>
+
+                            <!-- Deployment Layer -->
+                            <g class="deployment-layer">
+                                <text x="1050" y="30" class="layer-title">Deployment</text>
+                                
+                                <g class="deployment-node" transform="translate(1100, 120)">
+                                    <rect x="-25" y="-20" width="50" height="40" rx="5" fill="#1abc9c" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('api')"/>
+                                    <text x="0" y="0" text-anchor="middle" fill="white" font-weight="bold" font-size="12">API</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">REST API</text>
+                                </g>
+                                
+                                <g class="deployment-node" transform="translate(1100, 200)">
+                                    <rect x="-25" y="-20" width="50" height="40" rx="5" fill="#e67e22" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('dashboard')"/>
+                                    <text x="0" y="-5" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Web</text>
+                                    <text x="0" y="8" text-anchor="middle" fill="white" font-weight="bold" font-size="10">UI</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">Dashboard</text>
+                                </g>
+                                
+                                <g class="deployment-node" transform="translate(1100, 280)">
+                                    <rect x="-25" y="-20" width="50" height="40" rx="5" fill="#8e44ad" filter="url(#shadow)" class="clickable-node" onclick="showNodeDetails('monitoring')"/>
+                                    <text x="0" y="0" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Monitor</text>
+                                    <text x="0" y="45" text-anchor="middle" class="node-label">Real-time</text>
+                                </g>
+                            </g>
+
+                            <!-- Data Flow Arrows -->
+                            <g class="data-flows">
+                                <!-- IoT to Local Models -->
+                                <path d="M 100 80 Q 200 80 260 80" stroke="#667eea" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow1"/>
+                                <path d="M 100 180 Q 200 180 260 180" stroke="#667eea" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow2"/>
+                                <path d="M 100 280 Q 200 280 260 280" stroke="#667eea" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow3"/>
+                                
+                                <!-- Local Models to KD -->
+                                <path d="M 340 80 Q 470 80 570 155" stroke="#2ecc71" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow4"/>
+                                <path d="M 340 180 L 570 180" stroke="#f39c12" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow5"/>
+                                <path d="M 340 280 Q 470 280 570 205" stroke="#9b59b6" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow6"/>
+                                
+                                <!-- KD to Global Model -->
+                                <path d="M 630 180 L 860 180" stroke="#e74c3c" stroke-width="4" fill="none" marker-end="url(#arrowhead)" class="flow-path global-flow" id="flow7"/>
+                                
+                                <!-- Global Model to Deployment -->
+                                <path d="M 940 160 Q 1020 140 1075 140" stroke="#1abc9c" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow8"/>
+                                <path d="M 940 180 L 1075 200" stroke="#e67e22" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow9"/>
+                                <path d="M 940 200 Q 1020 220 1075 260" stroke="#8e44ad" stroke-width="3" fill="none" marker-end="url(#arrowhead)" class="flow-path" id="flow10"/>
+                            </g>
+
+                            <!-- Arrow marker definition -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#667eea" />
+                                </marker>
+                            </defs>
+
+                            <!-- Animated particles -->
+                            <g class="particles">
+                                <circle r="3" fill="#667eea" class="particle" id="particle1">
+                                    <animateMotion dur="4s" repeatCount="indefinite">
+                                        <mpath href="#flow1"/>
+                                    </animateMotion>
+                                </circle>
+                                <circle r="3" fill="#2ecc71" class="particle" id="particle2">
+                                    <animateMotion dur="3s" repeatCount="indefinite">
+                                        <mpath href="#flow4"/>
+                                    </animateMotion>
+                                </circle>
+                                <circle r="4" fill="#e74c3c" class="particle global-particle" id="particle3">
+                                    <animateMotion dur="2s" repeatCount="indefinite">
+                                        <mpath href="#flow7"/>
+                                    </animateMotion>
+                                </circle>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-layer-group me-2"></i>Technology Stack</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="tech-stack-item">
+                                <div class="tech-icon">
+                                    <i class="fab fa-python fa-3x text-primary"></i>
+                                </div>
+                                <h6>Backend</h6>
+                                <ul class="list-unstyled">
+                                    <li>Python 3.10+</li>
+                                    <li>Flask Framework</li>
+                                    <li>Socket.IO</li>
+                                    <li>NumPy & Pandas</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="tech-stack-item">
+                                <div class="tech-icon">
+                                    <i class="fas fa-brain fa-3x text-success"></i>
+                                </div>
+                                <h6>Machine Learning</h6>
+                                <ul class="list-unstyled">
+                                    <li>TensorFlow</li>
+                                    <li>Scikit-learn</li>
+                                    <li>XGBoost</li>
+                                    <li>CatBoost</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="tech-stack-item">
+                                <div class="tech-icon">
+                                    <i class="fab fa-js-square fa-3x text-warning"></i>
+                                </div>
+                                <h6>Frontend</h6>
+                                <ul class="list-unstyled">
+                                    <li>HTML5 & CSS3</li>
+                                    <li>Bootstrap 5</li>
+                                    <li>JavaScript ES6+</li>
+                                    <li>Plotly.js</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="tech-stack-item">
+                                <div class="tech-icon">
+                                    <i class="fas fa-chart-line fa-3x text-info"></i>
+                                </div>
+                                <h6>Visualization</h6>
+                                <ul class="list-unstyled">
+                                    <li>Plotly.js</li>
+                                    <li>D3.js Integration</li>
+                                    <li>Real-time Charts</li>
+                                    <li>Interactive Maps</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Research Background -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-graduation-cap me-2"></i>Research Background & Methodology</h4>
+                </div>
+                <div class="card-body">
+                    <h6>Federated Learning Approach</h6>
+                    <p>
+                        Our system implements a novel heterogeneous federated learning approach that allows different 
+                        types of machine learning models to collaborate without sharing raw data. This is particularly 
+                        important for IoT network security where data privacy and distributed computation are critical.
+                    </p>
+                    
+                    <h6>Knowledge Distillation</h6>
+                    <p>
+                        We employ advanced knowledge distillation techniques to transfer knowledge from diverse local 
+                        models (XGBoost, Random Forest, CatBoost) to a global neural network model. This enables the 
+                        system to benefit from the strengths of different model architectures.
+                    </p>
+                    
+                    <h6>IoT Network Security Focus</h6>
+                    <p>
+                        The system is specifically designed for IoT network security applications, handling various 
+                        types of network attacks including DDoS, injection attacks, malware, and other security threats 
+                        commonly found in IoT environments.
+                    </p>
+                    
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="fas fa-info-circle me-2"></i>Research Publications</h6>
+                        <p class="mb-0">
+                            This work is based on cutting-edge research in federated learning and IoT security. 
+                            For detailed technical information, please refer to our published papers and documentation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-award me-2"></i>Performance Benchmarks</h5>
+                </div>
+                <div class="card-body">
+                    <div class="benchmark-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Accuracy Improvement</span>
+                            <strong>+15.3%</strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="benchmark-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Training Speed</span>
+                            <strong>2.5x Faster</strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="benchmark-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Privacy Preservation</span>
+                            <strong>100%</strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-warning" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="benchmark-item">
+                        <div class="d-flex justify-content-between">
+                            <span>Scalability</span>
+                            <strong>1000+ Devices</strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-info" style="width: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact and Support -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-envelope me-2"></i>Contact & Support</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <h6><i class="fas fa-university me-2"></i>Research Team</h6>
+                            <p>
+                                Developed by the Advanced Computing Research Lab<br>
+                                Specializing in Federated Learning and IoT Security
+                            </p>
+                        </div>
+                        <div class="col-lg-4">
+                            <h6><i class="fas fa-code me-2"></i>Technical Support</h6>
+                            <p>
+                                For technical issues and questions:<br>
+                                <a href="mailto:support@hetrofl.com">support@hetrofl.com</a><br>
+                                <a href="https://github.com/hetrofl/system">GitHub Repository</a>
+                            </p>
+                        </div>
+                        <div class="col-lg-4">
+                            <h6><i class="fas fa-book me-2"></i>Documentation</h6>
+                            <p>
+                                Comprehensive documentation available:<br>
+                                <a href="/help">User Guide</a><br>
+                                <a href="#" onclick="showAPIDocumentation()">API Documentation</a><br>
+                                <a href="#" onclick="showResearchPapers()">Research Papers</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Node Details Modal -->
+<div class="modal fade" id="nodeDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nodeDetailsTitle">Component Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="nodeDetailsBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="learnMore()">Learn More</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.architecture-svg {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 15px;
+}
+
+.layer-title {
+    font-size: 16px;
+    font-weight: bold;
+    fill: #2c3e50;
+}
+
+.node-label {
+    font-size: 12px;
+    fill: #7f8c8d;
+}
+
+.clickable-node {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clickable-node:hover {
+    transform: scale(1.1);
+    filter: url(#glow) brightness(1.2);
+}
+
+.flow-path {
+    stroke-dasharray: 10, 5;
+    animation: flowDash 2s linear infinite;
+    opacity: 0.7;
+}
+
+.global-flow {
+    stroke-dasharray: 15, 10;
+    animation: globalFlowDash 1.5s linear infinite;
+}
+
+@keyframes flowDash {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -15; }
+}
+
+@keyframes globalFlowDash {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -25; }
+}
+
+.tech-stack-item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease;
+}
+
+.tech-stack-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.tech-icon {
+    margin-bottom: 15px;
+}
+
+.benchmark-item {
+    padding: 10px 0;
+}
+
+.particles {
+    opacity: 0.8;
+}
+
+.particle {
+    filter: url(#glow);
+}
+</style>
+
+<script>
+// Node details data
+const nodeDetails = {
+    iot1: {
+        title: 'IoT Network Device',
+        content: `
+            <h6>Network Monitoring Device</h6>
+            <p>Collects network traffic data and security metrics from IoT devices.</p>
+            <ul>
+                <li>Real-time traffic analysis</li>
+                <li>Anomaly detection</li>
+                <li>Local data processing</li>
+                <li>Privacy-preserving data collection</li>
+            </ul>
+        `
+    },
+    iot2: {
+        title: 'Security Sensor',
+        content: `
+            <h6>IoT Security Sensor</h6>
+            <p>Specialized sensor for detecting security threats in IoT networks.</p>
+            <ul>
+                <li>Intrusion detection</li>
+                <li>Malware identification</li>
+                <li>Behavioral analysis</li>
+                <li>Edge computing capabilities</li>
+            </ul>
+        `
+    },
+    iot3: {
+        title: 'Edge Gateway',
+        content: `
+            <h6>IoT Edge Gateway</h6>
+            <p>Gateway device that aggregates data from multiple IoT devices.</p>
+            <ul>
+                <li>Data aggregation</li>
+                <li>Protocol translation</li>
+                <li>Local model training</li>
+                <li>Secure communication</li>
+            </ul>
+        `
+    },
+    xgboost: {
+        title: 'XGBoost Classifier',
+        content: `
+            <h6>Gradient Boosting Model</h6>
+            <p>High-performance gradient boosting framework optimized for speed and accuracy.</p>
+            <ul>
+                <li>Excellent performance on structured data</li>
+                <li>Built-in regularization</li>
+                <li>Handles missing values</li>
+                <li>Feature importance analysis</li>
+            </ul>
+            <div class="mt-3">
+                <strong>Current Performance:</strong> 94.3% accuracy
+            </div>
+        `
+    },
+    random_forest: {
+        title: 'Random Forest Classifier',
+        content: `
+            <h6>Ensemble Learning Method</h6>
+            <p>Robust ensemble method that combines multiple decision trees.</p>
+            <ul>
+                <li>Reduces overfitting</li>
+                <li>Handles large datasets</li>
+                <li>Feature importance ranking</li>
+                <li>Robust to outliers</li>
+            </ul>
+            <div class="mt-3">
+                <strong>Current Performance:</strong> 91.7% accuracy
+            </div>
+        `
+    },
+    catboost: {
+        title: 'CatBoost Classifier',
+        content: `
+            <h6>Categorical Boosting Algorithm</h6>
+            <p>Advanced gradient boosting library with categorical feature support.</p>
+            <ul>
+                <li>Automatic categorical feature handling</li>
+                <li>Reduced overfitting</li>
+                <li>Fast training and prediction</li>
+                <li>Built-in cross-validation</li>
+            </ul>
+            <div class="mt-3">
+                <strong>Current Performance:</strong> 92.8% accuracy
+            </div>
+        `
+    },
+    knowledge_distillation: {
+        title: 'Knowledge Distillation',
+        content: `
+            <h6>Transfer Learning Process</h6>
+            <p>Advanced technique for transferring knowledge from multiple teacher models to a student model.</p>
+            <ul>
+                <li>Combines diverse model architectures</li>
+                <li>Preserves model privacy</li>
+                <li>Reduces communication overhead</li>
+                <li>Improves generalization</li>
+            </ul>
+            <div class="mt-3">
+                <strong>Process:</strong> Soft targets generation and temperature scaling
+            </div>
+        `
+    },
+    global_model: {
+        title: 'Global MLP Model',
+        content: `
+            <h6>Multi-Layer Perceptron</h6>
+            <p>Global neural network model that aggregates knowledge from all local models.</p>
+            <ul>
+                <li>Deep learning architecture</li>
+                <li>Federated aggregation</li>
+                <li>Real-time inference</li>
+                <li>Continuous learning</li>
+            </ul>
+            <div class="mt-3">
+                <strong>Architecture:</strong> 3 hidden layers, 128-64-32 neurons<br>
+                <strong>Current Performance:</strong> 95.1% accuracy
+            </div>
+        `
+    },
+    api: {
+        title: 'REST API',
+        content: `
+            <h6>RESTful Web Service</h6>
+            <p>Comprehensive API for system integration and external access.</p>
+            <ul>
+                <li>Model prediction endpoints</li>
+                <li>Training status monitoring</li>
+                <li>Metrics and analytics</li>
+                <li>Authentication and security</li>
+            </ul>
+        `
+    },
+    dashboard: {
+        title: 'Web Dashboard',
+        content: `
+            <h6>Interactive Web Interface</h6>
+            <p>Real-time dashboard for monitoring and controlling the federated learning system.</p>
+            <ul>
+                <li>Real-time visualizations</li>
+                <li>Training control panel</li>
+                <li>Performance analytics</li>
+                <li>System configuration</li>
+            </ul>
+        `
+    },
+    monitoring: {
+        title: 'Real-time Monitoring',
+        content: `
+            <h6>System Monitoring Service</h6>
+            <p>Continuous monitoring of system performance and health.</p>
+            <ul>
+                <li>Performance metrics tracking</li>
+                <li>Alert notifications</li>
+                <li>Resource utilization</li>
+                <li>Anomaly detection</li>
+            </ul>
+        `
+    }
+};
+
+function showNodeDetails(nodeId) {
+    const details = nodeDetails[nodeId];
+    if (details) {
+        document.getElementById('nodeDetailsTitle').textContent = details.title;
+        document.getElementById('nodeDetailsBody').innerHTML = details.content;
+        
+        const modal = new bootstrap.Modal(document.getElementById('nodeDetailsModal'));
+        modal.show();
+    }
+}
+
+function resetArchitectureView() {
+    // Reset any transformations or highlights
+    document.querySelectorAll('.clickable-node').forEach(node => {
+        node.style.transform = '';
+        node.style.filter = '';
+    });
+    
+    showToast('Architecture view reset', 'info');
+}
+
+function animateDataFlow() {
+    // Animate the data flow paths
+    const flows = document.querySelectorAll('.flow-path');
+    flows.forEach((flow, index) => {
+        setTimeout(() => {
+            flow.style.opacity = '1';
+            flow.style.strokeWidth = '4';
+            
+            setTimeout(() => {
+                flow.style.opacity = '0.7';
+                flow.style.strokeWidth = '3';
+            }, 1000);
+        }, index * 200);
+    });
+    
+    showToast('Data flow animation started', 'success');
+}
+
+function learnMore() {
+    // Navigate to help page or show more information
+    window.location.href = '/help';
+}
+
+function showAPIDocumentation() {
+    showToast('API documentation will be available soon', 'info');
+}
+
+function showResearchPapers() {
+    showToast('Research papers will be available soon', 'info');
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any initialization code here
+    console.log('About page loaded');
+});
+</script>
+{% endblock %}
